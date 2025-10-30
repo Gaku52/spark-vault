@@ -40,20 +40,32 @@
 ## 技術スタック
 
 - **フロントエンド**: React 18 + TypeScript + Vite
+- **UI**: TailwindCSS + shadcn/ui
+- **ルーティング**: React Router
+- **フォーム**: React Hook Form + Zod
+- **データ可視化**: Recharts
 - **バックエンド**: Supabase (PostgreSQL)
+- **認証**: Supabase Auth
 - **デプロイ**: Vercel
-- **スタイリング**: TailwindCSS（予定）
 
 ## ドキュメント
 
-- [ディレクトリ構成](./docs/DIRECTORY_STRUCTURE.md)
-- [仕様書](./docs/SPECIFICATION.md)
+- 📖 [仕様書](./docs/SPECIFICATION.md) - 機能要件とデータベース設計
+- 📁 [ディレクトリ構成](./docs/DIRECTORY_STRUCTURE.md) - プロジェクト構造の説明
+- 🚀 [セットアップガイド](./docs/SETUP_GUIDE.md) - 開発環境構築手順
+- 💻 [実装ガイド](./docs/IMPLEMENTATION_GUIDE.md) - 週末完成のための実装戦略
 
-## セットアップ（予定）
+## クイックスタート
+
+詳細は [セットアップガイド](./docs/SETUP_GUIDE.md) を参照してください。
 
 ```bash
 # 依存関係のインストール
 npm install
+
+# 環境変数設定
+cp .env.example .env.local
+# .env.local にSupabaseのURLとキーを設定
 
 # 開発サーバー起動
 npm run dev
@@ -62,35 +74,46 @@ npm run dev
 npm run build
 ```
 
-## 環境変数
-
-Supabaseとの連携設定は週末に実施予定です。
-
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
 ## 開発ロードマップ
 
-### Phase 1: MVP（現在）
+### Phase 1: PC Web版 MVP（週末完成目標） 🎯
 - [x] プロジェクト初期設定
 - [x] ディレクトリ構成作成
-- [x] 仕様書作成
-- [ ] Supabase設定（週末予定）
-- [ ] Vercelデプロイ設定（週末予定）
-- [ ] 基本UI実装
-- [ ] CRUD機能実装
+- [x] 詳細仕様書作成
+- [x] セットアップ・実装ガイド作成
+- [ ] Supabase設定（土曜AM）
+- [ ] 認証フロー実装（土曜AM）
+- [ ] アイデアメモ機能実装（土曜PM）
+- [ ] DJ成長記録機能実装（土曜PM）
+- [ ] エンジニア自己管理機能実装（日曜AM）
+- [ ] 健康管理機能実装（日曜AM）
+- [ ] 思考法記録機能実装（日曜AM）
+- [ ] データ可視化実装（日曜PM）
+- [ ] 検索・フィルター実装（日曜PM）
+- [ ] Vercelデプロイ（日曜PM）
 
-### Phase 2: 機能強化
-- [ ] データ可視化（グラフ・チャート）
-- [ ] 検索・フィルター強化
+**対応環境**: PC Webブラウザ（Chrome, Firefox, Safari, Edge）
+
+### Phase 2: iOS/モバイル展開 📱
+- [ ] レスポンシブデザイン強化
+- [ ] PWA対応（オフライン機能）
+- [ ] iOS Safari最適化
+- [ ] ホーム画面追加対応
+- [ ] プッシュ通知（オプション）
+- [ ] React Native版検討
+
+### Phase 3: 機能拡張 🚀
 - [ ] ダークモード実装
+- [ ] 週次・月次レポート自動生成
+- [ ] 目標設定・進捗管理
+- [ ] リマインダー機能
+- [ ] データエクスポート（CSV, PDF）
 
-### Phase 3: 高度な機能
-- [ ] レポート自動生成
-- [ ] AI分析・提案機能
-- [ ] PWA対応
+### Phase 4: AI統合 🤖
+- [ ] パターン認識と改善提案
+- [ ] 自動カテゴリ分類
+- [ ] 最適な記録タイミング提案
+- [ ] GPT連携によるインサイト生成
 
 ## ライセンス
 
