@@ -100,7 +100,9 @@ npm run build
 - [ ] iOS Safari最適化
 - [ ] ホーム画面追加対応
 - [ ] プッシュ通知（オプション）
-- [ ] React Native版検討
+- [ ] **iOSネイティブアプリ開発（Xcode + Swift/SwiftUI）**
+- [ ] React Native版も選択肢として検討
+- [ ] App Storeリリース準備
 
 ### Phase 3: 機能拡張 🚀
 - [ ] ダークモード実装
