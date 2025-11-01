@@ -61,13 +61,13 @@ async function getIdeas() {
 }
 ```
 
-### カテゴリ別アイデア取得
+### 実装方法別アイデア取得
 ```typescript
-async function getIdeasByCategory(category: string) {
+async function getIdeasByActionType(actionType: ActionType) {
   const { data, error } = await supabase
     .from('ideas')
     .select('*')
-    .eq('category', category)
+    .eq('action_type', actionType)
     .order('created_at', { ascending: false })
 
   return { data, error }
@@ -132,290 +132,16 @@ async function searchIdeas(query: string) {
 }
 ```
 
----
-
-## DJ成長記録 API
-
-### DJ記録一覧取得
+### タグでフィルター
 ```typescript
-async function getDJRecords() {
+async function getIdeasByTag(tag: string) {
   const { data, error } = await supabase
-    .from('dj_records')
+    .from('ideas')
     .select('*')
-    .order('date', { ascending: false })
+    .contains('tags', [tag])
+    .order('created_at', { ascending: false })
 
   return { data, error }
-}
-```
-
-### タイプ別DJ記録取得
-```typescript
-async function getDJRecordsByType(type: 'skill' | 'mix' | 'performance') {
-  const { data, error } = await supabase
-    .from('dj_records')
-    .select('*')
-    .eq('type', type)
-    .order('date', { ascending: false })
-
-  return { data, error }
-}
-```
-
-### DJ記録作成
-```typescript
-async function createDJRecord(record: DJRecordInput) {
-  const { data, error } = await supabase
-    .from('dj_records')
-    .insert([{
-      ...record,
-      user_id: (await getCurrentUser())?.id
-    }])
-    .select()
-    .single()
-
-  return { data, error }
-}
-```
-
-### DJ記録更新
-```typescript
-async function updateDJRecord(id: string, updates: Partial<DJRecordInput>) {
-  const { data, error } = await supabase
-    .from('dj_records')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  return { data, error }
-}
-```
-
-### DJ記録削除
-```typescript
-async function deleteDJRecord(id: string) {
-  const { error } = await supabase
-    .from('dj_records')
-    .delete()
-    .eq('id', id)
-
-  return { error }
-}
-```
-
----
-
-## エンジニア自己管理 API
-
-### エンジニア記録一覧取得
-```typescript
-async function getEngineerRecords() {
-  const { data, error } = await supabase
-    .from('engineer_records')
-    .select('*')
-    .order('date', { ascending: false })
-
-  return { data, error }
-}
-```
-
-### ステータス別プロジェクト取得
-```typescript
-async function getProjectsByStatus(status: ProjectStatus) {
-  const { data, error } = await supabase
-    .from('engineer_records')
-    .select('*')
-    .eq('type', 'project')
-    .eq('status', status)
-    .order('date', { ascending: false })
-
-  return { data, error }
-}
-```
-
-### エンジニア記録作成
-```typescript
-async function createEngineerRecord(record: EngineerRecordInput) {
-  const { data, error } = await supabase
-    .from('engineer_records')
-    .insert([{
-      ...record,
-      user_id: (await getCurrentUser())?.id
-    }])
-    .select()
-    .single()
-
-  return { data, error }
-}
-```
-
-### エンジニア記録更新
-```typescript
-async function updateEngineerRecord(id: string, updates: Partial<EngineerRecordInput>) {
-  const { data, error } = await supabase
-    .from('engineer_records')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  return { data, error }
-}
-```
-
-### エンジニア記録削除
-```typescript
-async function deleteEngineerRecord(id: string) {
-  const { error } = await supabase
-    .from('engineer_records')
-    .delete()
-    .eq('id', id)
-
-  return { error }
-}
-```
-
----
-
-## 健康管理 API
-
-### 健康記録一覧取得
-```typescript
-async function getHealthRecords() {
-  const { data, error } = await supabase
-    .from('health_records')
-    .select('*')
-    .order('date', { ascending: false })
-
-  return { data, error }
-}
-```
-
-### 期間別健康記録取得
-```typescript
-async function getHealthRecordsByDateRange(startDate: string, endDate: string) {
-  const { data, error } = await supabase
-    .from('health_records')
-    .select('*')
-    .gte('date', startDate)
-    .lte('date', endDate)
-    .order('date', { ascending: true })
-
-  return { data, error }
-}
-```
-
-### 健康記録作成
-```typescript
-async function createHealthRecord(record: HealthRecordInput) {
-  const { data, error } = await supabase
-    .from('health_records')
-    .insert([{
-      ...record,
-      user_id: (await getCurrentUser())?.id
-    }])
-    .select()
-    .single()
-
-  return { data, error }
-}
-```
-
-### 健康記録更新
-```typescript
-async function updateHealthRecord(id: string, updates: Partial<HealthRecordInput>) {
-  const { data, error } = await supabase
-    .from('health_records')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  return { data, error }
-}
-```
-
-### 健康記録削除
-```typescript
-async function deleteHealthRecord(id: string) {
-  const { error } = await supabase
-    .from('health_records')
-    .delete()
-    .eq('id', id)
-
-  return { error }
-}
-```
-
----
-
-## 思考法記録 API
-
-### 思考記録一覧取得
-```typescript
-async function getThinkingRecords() {
-  const { data, error } = await supabase
-    .from('thinking_records')
-    .select('*')
-    .order('date', { ascending: false })
-
-  return { data, error }
-}
-```
-
-### IQトラッキング記録取得
-```typescript
-async function getIQTrackingRecords() {
-  const { data, error } = await supabase
-    .from('thinking_records')
-    .select('*')
-    .eq('type', 'iq_tracking')
-    .not('iq_level', 'is', null)
-    .order('date', { ascending: true })
-
-  return { data, error }
-}
-```
-
-### 思考記録作成
-```typescript
-async function createThinkingRecord(record: ThinkingRecordInput) {
-  const { data, error } = await supabase
-    .from('thinking_records')
-    .insert([{
-      ...record,
-      user_id: (await getCurrentUser())?.id
-    }])
-    .select()
-    .single()
-
-  return { data, error }
-}
-```
-
-### 思考記録更新
-```typescript
-async function updateThinkingRecord(id: string, updates: Partial<ThinkingRecordInput>) {
-  const { data, error } = await supabase
-    .from('thinking_records')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  return { data, error }
-}
-```
-
-### 思考記録削除
-```typescript
-async function deleteThinkingRecord(id: string) {
-  const { error } = await supabase
-    .from('thinking_records')
-    .delete()
-    .eq('id', id)
-
-  return { error }
 }
 ```
 
@@ -423,52 +149,42 @@ async function deleteThinkingRecord(id: string) {
 
 ## 統計・分析 API
 
-### ダッシュボードサマリー取得
+### アイデア統計取得
 ```typescript
-async function getDashboardSummary() {
+async function getIdeaStats() {
   const user = await getCurrentUser()
 
-  // 各テーブルの件数を並列取得
-  const [ideas, djRecords, engineerRecords, healthRecords, thinkingRecords] = await Promise.all([
-    supabase.from('ideas').select('id', { count: 'exact', head: true }),
-    supabase.from('dj_records').select('id', { count: 'exact', head: true }),
-    supabase.from('engineer_records').select('id', { count: 'exact', head: true }),
-    supabase.from('health_records').select('id', { count: 'exact', head: true }),
-    supabase.from('thinking_records').select('id', { count: 'exact', head: true })
+  // 全体の件数
+  const { count: totalCount } = await supabase
+    .from('ideas')
+    .select('*', { count: 'exact', head: true })
+
+  // 実装方法別の件数
+  const [buildApp, useExisting, pending] = await Promise.all([
+    supabase.from('ideas').select('*', { count: 'exact', head: true }).eq('action_type', 'build_app'),
+    supabase.from('ideas').select('*', { count: 'exact', head: true }).eq('action_type', 'use_existing'),
+    supabase.from('ideas').select('*', { count: 'exact', head: true }).eq('action_type', 'pending')
   ])
 
   return {
-    ideasCount: ideas.count || 0,
-    djRecordsCount: djRecords.count || 0,
-    engineerRecordsCount: engineerRecords.count || 0,
-    healthRecordsCount: healthRecords.count || 0,
-    thinkingRecordsCount: thinkingRecords.count || 0
+    total: totalCount || 0,
+    buildApp: buildApp.count || 0,
+    useExisting: useExisting.count || 0,
+    pending: pending.count || 0
   }
 }
 ```
 
-### 最近のアクティビティ取得（全機能）
+### 最近のアイデア取得
 ```typescript
-async function getRecentActivity(limit: number = 10) {
-  // 各テーブルから最新の記録を取得
-  const [ideas, djRecords, engineerRecords, healthRecords, thinkingRecords] = await Promise.all([
-    supabase.from('ideas').select('id, title, created_at').order('created_at', { ascending: false }).limit(limit),
-    supabase.from('dj_records').select('id, title, date, created_at').order('created_at', { ascending: false }).limit(limit),
-    supabase.from('engineer_records').select('id, title, date, created_at').order('created_at', { ascending: false }).limit(limit),
-    supabase.from('health_records').select('id, type, date, created_at').order('created_at', { ascending: false }).limit(limit),
-    supabase.from('thinking_records').select('id, title, date, created_at').order('created_at', { ascending: false }).limit(limit)
-  ])
+async function getRecentIdeas(limit: number = 5) {
+  const { data, error } = await supabase
+    .from('ideas')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit)
 
-  // すべての記録を統合してソート
-  const allRecords = [
-    ...(ideas.data || []).map(r => ({ ...r, source: 'idea' })),
-    ...(djRecords.data || []).map(r => ({ ...r, source: 'dj' })),
-    ...(engineerRecords.data || []).map(r => ({ ...r, source: 'engineer' })),
-    ...(healthRecords.data || []).map(r => ({ ...r, source: 'health' })),
-    ...(thinkingRecords.data || []).map(r => ({ ...r, source: 'thinking' }))
-  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-
-  return allRecords.slice(0, limit)
+  return { data, error }
 }
 ```
 
@@ -503,12 +219,12 @@ console.log('Ideas:', data)
 
 ## Row Level Security (RLS) ポリシー
 
-すべてのテーブルで以下のRLSポリシーが適用されます：
+`ideas` テーブルで以下のRLSポリシーが適用されます：
 
-1. **SELECT**: ユーザーは自分のデータのみ閲覧可能
-2. **INSERT**: ユーザーは自分のデータのみ挿入可能
-3. **UPDATE**: ユーザーは自分のデータのみ更新可能
-4. **DELETE**: ユーザーは自分のデータのみ削除可能
+1. **SELECT**: ユーザーは自分のアイデアのみ閲覧可能
+2. **INSERT**: ユーザーは自分のアイデアのみ挿入可能
+3. **UPDATE**: ユーザーは自分のアイデアのみ更新可能
+4. **DELETE**: ユーザーは自分のアイデアのみ削除可能
 
 これにより、ユーザー間のデータ分離が自動的に保証されます。
 
@@ -517,37 +233,98 @@ console.log('Ideas:', data)
 ## パフォーマンス最適化
 
 ### キャッシュ戦略
-- React Queryなどのライブラリを使用してクライアント側でデータをキャッシュ
-- 頻繁にアクセスするデータは定期的に再検証
-
-### バッチ操作
-複数のデータを一度に取得する場合は、Promise.allを使用して並列実行：
+React Queryなどのライブラリでクライアント側データをキャッシュ：
 
 ```typescript
-const [ideas, djRecords] = await Promise.all([
-  getIdeas(),
-  getDJRecords()
-])
+import { useQuery, useMutation } from '@tanstack/react-query'
+
+// アイデア一覧取得（キャッシュ付き）
+const { data: ideas } = useQuery({
+  queryKey: ['ideas'],
+  queryFn: getIdeas
+})
+
+// アイデア作成（キャッシュ無効化）
+const createMutation = useMutation({
+  mutationFn: createIdea,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['ideas'] })
+  }
+})
 ```
 
-### ページネーション
-大量のデータを扱う場合は、ページネーションを実装：
+### 楽観的UI更新
+```typescript
+const deleteMutation = useMutation({
+  mutationFn: deleteIdea,
+  onMutate: async (id) => {
+    // UIを即座に更新
+    await queryClient.cancelQueries({ queryKey: ['ideas'] })
+    const previousIdeas = queryClient.getQueryData(['ideas'])
+
+    queryClient.setQueryData(['ideas'], (old: Idea[]) =>
+      old.filter(idea => idea.id !== id)
+    )
+
+    return { previousIdeas }
+  },
+  onError: (err, id, context) => {
+    // エラー時はロールバック
+    queryClient.setQueryData(['ideas'], context.previousIdeas)
+  }
+})
+```
+
+---
+
+## 実装例：カスタムフック
 
 ```typescript
-async function getIdeasPaginated(page: number = 0, pageSize: number = 20) {
-  const from = page * pageSize
-  const to = from + pageSize - 1
+// src/hooks/useIdeas.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { getIdeas, createIdea, updateIdea, deleteIdea } from '@/services/ideaService'
 
-  const { data, error, count } = await supabase
-    .from('ideas')
-    .select('*', { count: 'exact' })
-    .range(from, to)
-    .order('created_at', { ascending: false })
+export function useIdeas() {
+  const queryClient = useQueryClient()
 
-  return { data, error, count }
+  const { data: ideas, isLoading, error } = useQuery({
+    queryKey: ['ideas'],
+    queryFn: getIdeas
+  })
+
+  const createMutation = useMutation({
+    mutationFn: createIdea,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ideas'] })
+    }
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string, updates: Partial<IdeaInput> }) =>
+      updateIdea(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ideas'] })
+    }
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteIdea,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ideas'] })
+    }
+  })
+
+  return {
+    ideas: ideas?.data || [],
+    isLoading,
+    error,
+    createIdea: createMutation.mutate,
+    updateIdea: updateMutation.mutate,
+    deleteIdea: deleteMutation.mutate
+  }
 }
 ```
 
 ---
 
-このAPI設計に従って実装することで、一貫性のある保守しやすいコードベースを構築できます。
+このシンプルなAPI設計で、高速で保守しやすいアプリケーションを構築できます。

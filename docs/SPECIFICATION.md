@@ -2,217 +2,65 @@
 
 ## プロジェクト概要
 
-**Spark Vault（スパークヴォルト）** は、思いついたアイデアを即座に記録し、自己成長を多角的に管理するためのWebアプリケーションです。
+**Spark Vault（スパークヴォルト）** は、思いついたアイデアを即座に記録し、実装方法を明確化するシンプルなWebアプリケーションです。
 
 ### コンセプト
 「ひらめき（Spark）を保管庫（Vault）に」
 
-DJとしてのスキル向上、エンジニアとしての自己管理、健康維持、思考パターンの最適化など、人生の様々な側面での成長を一元管理します。
+普通のメモアプリとの違いは、**アイデアに特化**し、**実装方法を明確にする**ことで、頭の中が整理され、余計なメモをしなくて済むことです。
 
 ### 目標
-- IQの波を一定に保つことで生産性を向上
-- 自己認識を深めることで年収向上に貢献
-- 継続的な自己改善のサイクルを確立
+- アイデアを即座に記録（速度）
+- シンプルで軽快な操作性（軽快さ）
+- すぐに見返せる（アクセス性）
+- 実装方法を明確化することで行動につながる
 
 ---
 
 ## 機能要件
 
-### 1. アイデアメモ機能
-**目的**: 思いついたアイデアを瞬時に記録
+### アイデアメモ機能
+**目的**: 思いついたアイデアを瞬時に記録し、実装方法を分類する
 
 #### 機能詳細
-- **クイック入力**: ホーム画面から1クリックでメモ追加
-- **カテゴリ分類**: DJ、エンジニア、健康、思考、その他
-- **タグ付け**: 複数タグで横断的に管理
-- **優先度設定**: 重要度を3段階で管理
-- **検索機能**: キーワード、タグ、カテゴリで検索
+
+**1. クイック入力**
+- 最小限の項目で即座にメモ
+- タイトルと内容のみで保存可能
+
+**2. 実装方法の分類（アクションタイプ）**
+アイデアをどう実現するかを選択：
+- **アプリ化する** - このアイデアを実際にアプリケーションとして開発
+- **既存ツールで補完** - 既存のツールや方法で実現可能
+- **保留** - まだ決めていない、後で考える
+
+**3. 一覧表示**
+- すべてのアイデアを時系列で表示
+- 実装方法でフィルター可能
+- 検索機能
+
+**4. 編集・削除**
+- アイデアの修正
+- 不要なアイデアの削除
+- 実装方法の変更
+
+**5. タグ付け（オプション）**
+- 複数タグで横断的に管理
+- タグでフィルター
 
 #### データ項目
 ```typescript
-{
+type ActionType = 'build_app' | 'use_existing' | 'pending'
+
+interface Idea {
   id: string
+  user_id: string
   title: string
   content: string
-  category: 'dj' | 'engineer' | 'health' | 'thinking' | 'other'
+  action_type: ActionType
   tags: string[]
-  priority: 'high' | 'medium' | 'low'
-  createdAt: timestamp
-  updatedAt: timestamp
-}
-```
-
----
-
-### 2. DJ成長記録
-**目的**: DJ活動の進捗を可視化し、スキル向上を促進
-
-#### 機能詳細
-- **スキルトラッキング**:
-  - ミキシング技術
-  - 機材操作
-  - 選曲センス
-  - プレイバック能力
-  - オーディエンスリーディング
-
-- **ミックス記録**:
-  - 練習セッションの記録
-  - 使用した機材
-  - トラックリスト
-  - 反省点・改善点
-
-- **パフォーマンスメモ**:
-  - イベント情報
-  - 会場の雰囲気
-  - オーディエンスの反応
-  - 学んだこと
-
-#### データ項目
-```typescript
-{
-  id: string
-  type: 'skill' | 'mix' | 'performance'
-  date: date
-  title: string
-  description: string
-  skillRatings: {
-    mixing: number
-    equipment: number
-    selection: number
-    playback: number
-    audienceReading: number
-  }
-  equipment: string[]
-  trackList?: string[]
-  venue?: string
-  reflections: string
-  createdAt: timestamp
-}
-```
-
----
-
-### 3. エンジニア自己管理
-**目的**: 技術学習とプロジェクト進捗を管理
-
-#### 機能詳細
-- **学習記録**:
-  - 学んだ技術・フレームワーク
-  - 学習時間
-  - 理解度の自己評価
-  - 参考資料リンク
-
-- **プロジェクトトラッカー**:
-  - 個人/仕事プロジェクト
-  - 進捗状況
-  - 使用技術
-  - 課題・ブロッカー
-
-- **スキルマトリックス**:
-  - 技術スタックの可視化
-  - 習熟度レベル
-  - 次に学ぶべき技術
-
-#### データ項目
-```typescript
-{
-  id: string
-  type: 'learning' | 'project' | 'skill'
-  date: date
-  title: string
-  description: string
-  technologies: string[]
-  hours?: number
-  proficiency?: number
-  status?: 'planning' | 'in_progress' | 'completed' | 'blocked'
-  resources?: string[]
-  notes: string
-  createdAt: timestamp
-}
-```
-
----
-
-### 4. 健康管理
-**目的**: 身体的・精神的健康を維持し、パフォーマンスを最適化
-
-#### 機能詳細
-- **健康ログ**:
-  - 睡眠時間・質
-  - 体調評価（1-10）
-  - エネルギーレベル
-  - メンタル状態
-
-- **運動記録**:
-  - 運動種類
-  - 時間・強度
-  - 感想・効果
-
-- **食事記録**:
-  - 食事内容
-  - 栄養バランス
-  - 満足度
-
-#### データ項目
-```typescript
-{
-  id: string
-  type: 'health' | 'exercise' | 'meal'
-  date: date
-  sleepHours?: number
-  sleepQuality?: number
-  energyLevel?: number
-  mentalState?: string
-  exerciseType?: string
-  exerciseDuration?: number
-  exerciseIntensity?: number
-  mealContent?: string
-  notes: string
-  createdAt: timestamp
-}
-```
-
----
-
-### 5. 思考法記録
-**目的**: 思考パターンを分析し、IQの波を平準化
-
-#### 機能詳細
-- **思考パターン分析**:
-  - 良い決断をした時の思考プロセス
-  - 失敗した時の思考パターン
-  - 生産性の高い時間帯
-  - 集中力の波
-
-- **意思決定記録**:
-  - 重要な決断の内容
-  - 決断理由
-  - 結果の振り返り
-
-- **IQトラッカー**:
-  - 自己評価によるIQ状態（1-10）
-  - 影響要因（睡眠、食事、運動、ストレス）
-  - 改善アクション
-
-#### データ項目
-```typescript
-{
-  id: string
-  type: 'pattern' | 'decision' | 'iq_tracking'
-  date: date
-  title: string
-  description: string
-  iqLevel?: number
-  factors?: {
-    sleep: number
-    nutrition: number
-    exercise: number
-    stress: number
-  }
-  outcome?: string
-  learnings: string
-  actionItems: string[]
-  createdAt: timestamp
+  created_at: string
+  updated_at: string
 }
 ```
 
@@ -223,20 +71,20 @@ DJとしてのスキル向上、エンジニアとしての自己管理、健康
 ### フロントエンド
 - **フレームワーク**: React 18 + TypeScript
 - **ビルドツール**: Vite
-- **スタイリング**: TailwindCSS（予定）
-- **状態管理**: React Hooks + Context API
-- **ルーティング**: React Router（予定）
+- **UI**: TailwindCSS + shadcn/ui
+- **ルーティング**: React Router
+- **フォーム**: React Hook Form + Zod
+- **アイコン**: Lucide React
+- **日付処理**: date-fns
 
 ### バックエンド
 - **BaaS**: Supabase
   - データベース: PostgreSQL
   - 認証: Supabase Auth
-  - ストレージ: Supabase Storage（画像保存用）
-  - リアルタイム: Supabase Realtime（将来的な拡張用）
+  - Row Level Security（セキュリティ）
 
 ### デプロイ
 - **ホスティング**: Vercel
-- **CI/CD**: GitHub Actions（予定）
 
 ---
 
@@ -251,87 +99,31 @@ CREATE TABLE ideas (
   user_id UUID REFERENCES auth.users NOT NULL,
   title TEXT NOT NULL,
   content TEXT,
-  category TEXT NOT NULL,
-  tags TEXT[],
-  priority TEXT DEFAULT 'medium',
+  action_type TEXT NOT NULL DEFAULT 'pending',
+  tags TEXT[] DEFAULT '{}',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-```
 
-#### `dj_records` テーブル
-```sql
-CREATE TABLE dj_records (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users NOT NULL,
-  type TEXT NOT NULL,
-  date DATE NOT NULL,
-  title TEXT NOT NULL,
-  description TEXT,
-  skill_ratings JSONB,
-  equipment TEXT[],
-  track_list TEXT[],
-  venue TEXT,
-  reflections TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
+-- Row Level Security
+ALTER TABLE ideas ENABLE ROW LEVEL SECURITY;
 
-#### `engineer_records` テーブル
-```sql
-CREATE TABLE engineer_records (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users NOT NULL,
-  type TEXT NOT NULL,
-  date DATE NOT NULL,
-  title TEXT NOT NULL,
-  description TEXT,
-  technologies TEXT[],
-  hours INTEGER,
-  proficiency INTEGER,
-  status TEXT,
-  resources TEXT[],
-  notes TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
+CREATE POLICY "Users can view own ideas" ON ideas
+  FOR SELECT USING (auth.uid() = user_id);
 
-#### `health_records` テーブル
-```sql
-CREATE TABLE health_records (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users NOT NULL,
-  type TEXT NOT NULL,
-  date DATE NOT NULL,
-  sleep_hours DECIMAL,
-  sleep_quality INTEGER,
-  energy_level INTEGER,
-  mental_state TEXT,
-  exercise_type TEXT,
-  exercise_duration INTEGER,
-  exercise_intensity INTEGER,
-  meal_content TEXT,
-  notes TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
+CREATE POLICY "Users can insert own ideas" ON ideas
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-#### `thinking_records` テーブル
-```sql
-CREATE TABLE thinking_records (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users NOT NULL,
-  type TEXT NOT NULL,
-  date DATE NOT NULL,
-  title TEXT NOT NULL,
-  description TEXT,
-  iq_level INTEGER,
-  factors JSONB,
-  outcome TEXT,
-  learnings TEXT,
-  action_items TEXT[],
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+CREATE POLICY "Users can update own ideas" ON ideas
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own ideas" ON ideas
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- インデックス（パフォーマンス最適化）
+CREATE INDEX idx_ideas_user_id ON ideas(user_id);
+CREATE INDEX idx_ideas_action_type ON ideas(action_type);
+CREATE INDEX idx_ideas_created_at ON ideas(created_at DESC);
 ```
 
 ---
@@ -339,43 +131,83 @@ CREATE TABLE thinking_records (
 ## UI/UX設計
 
 ### レイアウト
-- **レスポンシブデザイン**: モバイルファースト
-- **ナビゲーション**: サイドバー（デスクトップ）、ボトムナビ（モバイル）
-- **カラースキーム**: ダークモード対応
+- **レスポンシブデザイン**: デスクトップ最適化（Phase 1）
+- **ナビゲーション**: シンプルなヘッダー
+- **カラースキーム**: ライトモード（ダークモードはPhase 3）
 
 ### 主要画面
 
-#### 1. ホーム画面（ダッシュボード）
-- クイックアイデア入力フォーム
-- 最近の記録一覧
-- 各機能へのショートカット
-- 今日の統計サマリー
+#### 1. ホーム画面（メイン画面）
+```
+┌─────────────────────────────────────┐
+│  Spark Vault                [ログアウト] │
+├─────────────────────────────────────┤
+│                                     │
+│  [新しいアイデアを追加] ボタン          │
+│                                     │
+│  フィルター: [すべて] [アプリ化] [既存ツール] [保留]  │
+│  検索: [___________]                │
+│                                     │
+│  ┌───────────────────────────┐     │
+│  │ アイデアカード                │     │
+│  │ タイトル: 〇〇アプリ           │     │
+│  │ 内容: △△△...              │     │
+│  │ 実装: アプリ化する            │     │
+│  │ 作成日: 2025-10-30          │     │
+│  │ [編集] [削除]               │     │
+│  └───────────────────────────┘     │
+│                                     │
+│  ┌───────────────────────────┐     │
+│  │ アイデアカード                │     │
+│  │ ...                        │     │
+│  └───────────────────────────┘     │
+│                                     │
+└─────────────────────────────────────┘
+```
 
-#### 2. アイデア一覧画面
-- カード形式の一覧表示
-- フィルター・ソート機能
-- 検索バー
-- 新規作成ボタン
+#### 2. アイデア追加/編集モーダル
+```
+┌─────────────────────────────┐
+│  新しいアイデア              │
+│                             │
+│  タイトル*:                  │
+│  [___________________]      │
+│                             │
+│  内容:                       │
+│  [___________________]      │
+│  [___________________]      │
+│  [___________________]      │
+│                             │
+│  実装方法*:                  │
+│  ○ アプリ化する              │
+│  ○ 既存ツールで補完          │
+│  ○ 保留                     │
+│                             │
+│  タグ（任意）:               │
+│  [___________________]      │
+│                             │
+│  [キャンセル]  [保存]        │
+└─────────────────────────────┘
+```
 
-#### 3. DJ成長記録画面
-- タブ切り替え（スキル/ミックス/パフォーマンス）
-- スキルレーダーチャート
-- タイムライン表示
+### カラーパレット
+```css
+/* Primary - 創造性を象徴する紫 */
+--primary: 262 83% 58%;  /* #8b5cf6 */
 
-#### 4. エンジニア自己管理画面
-- タブ切り替え（学習/プロジェクト/スキル）
-- プロジェクトカンバン
-- スキルマトリックス可視化
+/* Secondary - 落ち着きのある青 */
+--secondary: 217 91% 60%; /* #3b82f6 */
 
-#### 5. 健康管理画面
-- カレンダービュー
-- 健康指標グラフ
-- 記録入力フォーム
+/* Success - 行動を促す緑 */
+--success: 142 76% 36%;
 
-#### 6. 思考法記録画面
-- IQ変動グラフ
-- パターン分析
-- 意思決定ログ
+/* Background */
+--background: 0 0% 100%;
+--foreground: 222 84% 5%;
+
+/* Border */
+--border: 214 32% 91%;
+```
 
 ---
 
@@ -387,63 +219,63 @@ CREATE TABLE thinking_records (
 
 ---
 
-## 今後の拡張予定
-
-1. **データエクスポート**: CSV, PDF形式でのデータ出力
-2. **レポート機能**: 週次・月次の成長レポート自動生成
-3. **目標設定**: SMART目標の設定と進捗管理
-4. **リマインダー**: 記録忘れ防止の通知機能
-5. **AI分析**: パターン認識と改善提案（GPT連携）
-6. **ソーシャル機能**: 同じ目標を持つ仲間とのつながり（オプション）
-
----
-
 ## 開発フェーズ
 
-### Phase 1: PC Web版 MVP（週末完成目標）
-- ✅ 基本的なアイデアメモ機能（完全CRUD）
-- ✅ DJ成長記録機能（完全CRUD + スキルレーダーチャート）
-- ✅ エンジニア自己管理機能（完全CRUD + ステータス管理）
-- ✅ 健康管理機能（完全CRUD + グラフ表示）
-- ✅ 思考法記録機能（完全CRUD + IQ変動グラフ）
-- ✅ ダッシュボード（統計サマリー + 最近の記録）
-- ✅ 検索・フィルター機能
-- ✅ Supabase認証・データベース連携
-- ✅ Vercelデプロイ
-- ✅ デスクトップ最適化UI
+### Phase 1: PC Web版 MVP（週末完成目標） 🎯
+- ✅ プロジェクト初期設定
+- ✅ 詳細仕様書作成
+- ✅ セットアップ・実装ガイド作成
+- [ ] Supabase設定（土曜AM）
+- [ ] 認証フロー実装（土曜AM）
+- [ ] アイデアメモ機能実装（土曜PM - 日曜AM）
+  - CRUD操作（作成・読取・更新・削除）
+  - 実装方法の分類
+  - フィルター・検索
+- [ ] UI/UX仕上げ（日曜PM）
+- [ ] Vercelデプロイ（日曜PM）
 
 **対応環境**: PC Webブラウザ（Chrome, Firefox, Safari, Edge）
 
-### Phase 2: iOS/モバイル展開
-- 📱 レスポンシブデザイン強化
-- 📱 PWA対応（オフライン機能）
-- 📱 iOS Safari最適化
-- 📱 ホーム画面追加対応
-- 📱 プッシュ通知（オプション）
-- 📱 将来的にReact Native版も検討
+### Phase 2: iOS/モバイル展開 📱
+- [ ] レスポンシブデザイン強化
+- [ ] PWA対応（オフライン機能）
+- [ ] iOS Safari最適化
+- [ ] ホーム画面追加対応
+- [ ] プッシュ通知（オプション）
+- [ ] **iOSネイティブアプリ開発（Xcode + Swift/SwiftUI）**
+- [ ] React Native版も選択肢として検討
+- [ ] App Storeリリース準備
 
-### Phase 3: 機能拡張
-- 📊 高度なデータ可視化
-- 🌙 ダークモード実装
-- 📈 週次・月次レポート自動生成
-- 🎯 目標設定・進捗管理
-- 🔔 リマインダー機能
-- 📤 データエクスポート（CSV, PDF）
+### Phase 3: 機能拡張 🚀
+- [ ] ダークモード実装
+- [ ] データエクスポート（CSV, JSON）
+- [ ] アイデアの並び替え（ドラッグ&ドロップ）
+- [ ] アイデア同士のリンク機能
+- [ ] リマインダー機能
 
-### Phase 4: AI統合
-- 🤖 パターン認識と改善提案
-- 🤖 自動カテゴリ分類
-- 🤖 最適な記録タイミング提案
-- 🤖 GPT連携によるインサイト生成
+### Phase 4: AI統合 🤖
+- [ ] 自動タグ付け（GPT連携）
+- [ ] 類似アイデアの検出
+- [ ] 実装方法の提案
+- [ ] アイデアの優先度自動判定
 
 ---
 
 ## まとめ
 
-Spark Vaultは、単なるメモアプリではなく、自己成長の全体像を把握し、IQの波を平準化することで年収向上を目指す総合的な自己管理ツールです。
+Spark Vaultは、**シンプルさ**と**明確さ**に特化したアイデア管理ツールです。
+
+**他のメモアプリとの違い**:
+- アイデアに特化 → 余計なメモをしない
+- 実装方法を明確化 → 行動につながる
+- 即座に記録・すぐ見返せる → ストレスフリー
 
 **キーポイント**:
-- 即座にアイデアを記録
-- 多角的な自己成長を可視化
-- データに基づく自己改善
-- 長期的なパフォーマンス向上
+- 速度（即座にメモ）
+- 軽快さ（シンプルなUI）
+- アクセス性（すぐ見返せる）
+- 明確化（実装方法の分類）
+
+---
+
+**Spark Vaultで、アイデアを忘れず、実現へつなげる。**

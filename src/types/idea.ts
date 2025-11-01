@@ -2,17 +2,15 @@
  * アイデアメモ機能の型定義
  */
 
-export type IdeaCategory = 'dj' | 'engineer' | 'health' | 'thinking' | 'other'
-export type IdeaPriority = 'high' | 'medium' | 'low'
+export type ActionType = 'build_app' | 'use_existing' | 'pending'
 
 export interface Idea {
   id: string
   user_id: string
   title: string
   content: string
-  category: IdeaCategory
+  action_type: ActionType
   tags: string[]
-  priority: IdeaPriority
   created_at: string
   updated_at: string
 }
@@ -20,14 +18,12 @@ export interface Idea {
 export interface IdeaInput {
   title: string
   content: string
-  category: IdeaCategory
-  tags: string[]
-  priority: IdeaPriority
+  action_type: ActionType
+  tags?: string[]
 }
 
 export interface IdeaFilters {
-  category?: IdeaCategory
+  action_type?: ActionType
   tags?: string[]
-  priority?: IdeaPriority
   searchQuery?: string
 }
