@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 import { IdeaForm } from './IdeaForm'
@@ -12,11 +12,7 @@ export function IdeaList() {
   const [filter, setFilter] = useState<ActionType | 'all'>('all')
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
 
-  useEffect(() => {
-    fetchIdeas()
-  }, [filter])
-
-  const fetchIdeas = async () => {
+  const fetchIdeas = useCallback(async () => {
     try {
       setLoading(true)
       let query = supabase
@@ -37,7 +33,11 @@ export function IdeaList() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    fetchIdeas()
+  }, [fetchIdeas])
 
   const handleDelete = async (id: string) => {
     if (!confirm('このアイデアを削除しますか？')) return
