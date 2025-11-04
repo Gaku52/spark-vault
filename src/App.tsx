@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
 import { Auth } from './components/Auth'
 import { IdeaList } from './components/IdeaList'
+import { ResetPassword } from './components/ResetPassword'
 import type { Session } from '@supabase/supabase-js'
 
 function App() {
@@ -33,7 +35,18 @@ function App() {
     )
   }
 
-  return session ? <IdeaList /> : <Auth />
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/"
+          element={session ? <IdeaList /> : <Auth />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
 export default App

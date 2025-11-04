@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 import { IdeaForm } from './IdeaForm'
+import { UpdatePassword } from './UpdatePassword'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
 type ActionType = Database['public']['Tables']['ideas']['Row']['action_type']
@@ -11,6 +12,7 @@ export function IdeaList() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<ActionType | 'all'>('all')
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
 
   const fetchIdeas = useCallback(async () => {
     try {
@@ -82,20 +84,38 @@ export function IdeaList() {
             <h1 className="text-3xl font-bold text-primary">Spark Vault</h1>
             <p className="text-sm text-muted-foreground">ひらめきを即座に記録</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ログアウト
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowPasswordChange(!showPasswordChange)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              パスワード変更
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ログアウト
+            </button>
+          </div>
         </div>
 
+        {/* Password Change */}
+        {showPasswordChange && (
+          <UpdatePassword
+            onSuccess={() => setShowPasswordChange(false)}
+            onCancel={() => setShowPasswordChange(false)}
+          />
+        )}
+
         {/* Idea Form */}
-        <IdeaForm
-          onSuccess={fetchIdeas}
-          editingIdea={editingIdea}
-          onCancel={() => setEditingIdea(null)}
-        />
+        {!showPasswordChange && (
+          <IdeaForm
+            onSuccess={fetchIdeas}
+            editingIdea={editingIdea}
+            onCancel={() => setEditingIdea(null)}
+          />
+        )}
 
         {/* Filter */}
         <div className="flex gap-2 flex-wrap">
