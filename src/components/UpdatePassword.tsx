@@ -53,23 +53,30 @@ export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
   }
 
   return (
-    <div className="bg-card p-6 rounded-lg shadow-md space-y-4">
+    <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-border/50 space-y-5 animate-scaleIn">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">パスワード変更</h2>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-primary to-secondary rounded-lg">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold">パスワード変更</h2>
+        </div>
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 px-3 py-2 rounded-lg transition-all-smooth"
           >
-            キャンセル
+            ✕
           </button>
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="newPassword" className="block text-sm font-medium mb-2">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-2">
+          <label htmlFor="newPassword" className="block text-sm font-semibold text-foreground">
             新しいパスワード
           </label>
           <input
@@ -78,15 +85,15 @@ export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
             required
             disabled={loading}
             minLength={6}
           />
         </div>
 
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+        <div className="space-y-2">
+          <label htmlFor="confirmPassword" className="block text-sm font-semibold text-foreground">
             新しいパスワード（確認）
           </label>
           <input
@@ -95,7 +102,7 @@ export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
             required
             disabled={loading}
             minLength={6}
@@ -105,15 +112,29 @@ export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary text-primary-foreground py-2 rounded-md font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+          className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all-smooth transform hover:scale-[1.02] active:scale-[0.98]"
         >
-          {loading ? '変更中...' : 'パスワードを変更'}
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              変更中...
+            </span>
+          ) : (
+            'パスワードを変更'
+          )}
         </button>
 
         {message && (
-          <p className={`text-sm text-center ${message.includes('変更しました') ? 'text-green-600' : 'text-destructive'}`}>
+          <div className={`p-4 rounded-xl text-sm text-center animate-fadeIn ${
+            message.includes('変更しました')
+              ? 'bg-green-50 text-green-700 border border-green-200'
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}>
             {message}
-          </p>
+          </div>
         )}
       </form>
     </div>

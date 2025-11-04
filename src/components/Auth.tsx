@@ -85,23 +85,30 @@ export function Auth() {
   const handleSubmit = mode === 'reset' ? handleResetPassword : mode === 'signup' ? handleSignUp : handleSignIn
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-primary mb-2">Spark Vault</h1>
-          <p className="text-muted-foreground">ひらめきを即座に記録</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 animate-fadeIn">
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-lg shadow-primary/30 mb-4 animate-scaleIn">
+            <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Spark Vault
+          </h1>
+          <p className="text-base text-muted-foreground">ひらめきを即座に記録し、未来を創造する</p>
         </div>
 
-        <div className="bg-card p-6 rounded-lg shadow-md space-y-4">
+        <div className="bg-card/80 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-border/50 space-y-5 animate-slideIn">
           {mode !== 'reset' && (
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-6 p-1 bg-muted/30 rounded-xl">
               <button
                 type="button"
                 onClick={() => setMode('signin')}
-                className={`flex-1 py-2 rounded-md font-medium transition-colors ${
+                className={`flex-1 py-3 rounded-lg font-semibold transition-all-smooth ${
                   mode === 'signin'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/30'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 ログイン
@@ -109,10 +116,10 @@ export function Auth() {
               <button
                 type="button"
                 onClick={() => setMode('signup')}
-                className={`flex-1 py-2 rounded-md font-medium transition-colors ${
+                className={`flex-1 py-3 rounded-lg font-semibold transition-all-smooth ${
                   mode === 'signup'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/30'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 新規登録
@@ -121,17 +128,17 @@ export function Auth() {
           )}
 
           {mode === 'reset' && (
-            <div className="mb-4">
-              <h2 className="text-xl font-bold text-center">パスワードリセット</h2>
-              <p className="text-sm text-muted-foreground text-center mt-2">
+            <div className="mb-6 text-center">
+              <h2 className="text-2xl font-bold">パスワードリセット</h2>
+              <p className="text-sm text-muted-foreground mt-2">
                 登録済みのメールアドレスを入力してください
               </p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-foreground">
                 メールアドレス
               </label>
               <input
@@ -140,15 +147,15 @@ export function Auth() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
                 required
                 disabled={loading}
               />
             </div>
 
             {mode !== 'reset' && (
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
+              <div className="space-y-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-foreground">
                   パスワード
                 </label>
                 <input
@@ -157,7 +164,7 @@ export function Auth() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
                   required
                   disabled={loading}
                   minLength={6}
@@ -168,16 +175,26 @@ export function Auth() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-primary-foreground py-2 rounded-md font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+              className="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all-smooth transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              {loading ? '処理中...' : mode === 'reset' ? 'リセットリンクを送信' : mode === 'signup' ? 'アカウント作成' : 'ログイン'}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  処理中...
+                </span>
+              ) : (
+                mode === 'reset' ? 'リセットリンクを送信' : mode === 'signup' ? 'アカウント作成' : 'ログイン'
+              )}
             </button>
 
             {mode === 'signin' && (
               <button
                 type="button"
                 onClick={() => setMode('reset')}
-                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="w-full text-sm text-muted-foreground hover:text-primary transition-all-smooth"
               >
                 パスワードを忘れた場合
               </button>
@@ -187,27 +204,33 @@ export function Auth() {
               <button
                 type="button"
                 onClick={() => setMode('signin')}
-                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="w-full text-sm text-muted-foreground hover:text-primary transition-all-smooth"
               >
-                ログイン画面に戻る
+                ← ログイン画面に戻る
               </button>
             )}
 
             {message && (
-              <p className={`text-sm text-center ${message.includes('成功') || message.includes('作成') || message.includes('送信') ? 'text-green-600' : 'text-destructive'}`}>
+              <div className={`p-4 rounded-xl text-sm text-center animate-fadeIn ${
+                message.includes('成功') || message.includes('作成') || message.includes('送信')
+                  ? 'bg-green-50 text-green-700 border border-green-200'
+                  : 'bg-red-50 text-red-700 border border-red-200'
+              }`}>
                 {message}
-              </p>
+              </div>
             )}
           </form>
         </div>
 
-        <p className="text-xs text-center text-muted-foreground">
-          {mode === 'signup'
-            ? '確認メールが送信されます。メールのリンクをクリックしてアカウントを有効化してください。'
-            : mode === 'reset'
-            ? 'メールアドレスにパスワードリセット用のリンクが送信されます。'
-            : 'アカウントをお持ちでない場合は新規登録してください。'}
-        </p>
+        <div className="text-center space-y-2">
+          <p className="text-xs text-muted-foreground px-4">
+            {mode === 'signup'
+              ? '確認メールが送信されます。メールのリンクをクリックしてアカウントを有効化してください。'
+              : mode === 'reset'
+              ? 'メールアドレスにパスワードリセット用のリンクが送信されます。'
+              : 'アカウントをお持ちでない場合は新規登録してください。'}
+          </p>
+        </div>
       </div>
     </div>
   )
