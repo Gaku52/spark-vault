@@ -8,7 +8,6 @@ interface UpdatePasswordProps {
 
 export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
   const [loading, setLoading] = useState(false)
-  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
@@ -38,7 +37,6 @@ export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
       if (error) throw error
 
       setMessage('パスワードを変更しました')
-      setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
 
