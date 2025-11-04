@@ -76,6 +76,26 @@ npm run dev
 npm run build
 ```
 
+### 環境変数
+
+`.env.local` に以下の環境変数を設定してください：
+
+```bash
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_APP_URL=http://localhost:5173  # ローカル開発用
+```
+
+**Vercelでのデプロイ時**は、Vercelの環境変数に以下を設定：
+
+1. Vercelダッシュボード → プロジェクト → Settings → Environment Variables
+2. 以下の環境変数を追加：
+   - `VITE_SUPABASE_URL`: SupabaseのプロジェクトURL
+   - `VITE_SUPABASE_ANON_KEY`: Supabaseの匿名キー
+   - `VITE_APP_URL`: 本番環境のURL (例: `https://spark.ogadix.com`)
+
+> **重要**: `VITE_APP_URL`は、メール認証のリダイレクト先として使用されます。本番環境では必ず正しいドメインを設定してください。
+
 ## 開発ロードマップ
 
 ### Phase 1: PC Web版 MVP（週末完成目標） 🎯

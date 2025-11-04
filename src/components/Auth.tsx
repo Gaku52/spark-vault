@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase'
 
 type AuthMode = 'signin' | 'signup' | 'reset'
 
+const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin
+
 export function Auth() {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
@@ -21,7 +23,7 @@ export function Auth() {
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: APP_URL,
         },
       })
 
@@ -67,7 +69,7 @@ export function Auth() {
       setMessage('')
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${APP_URL}/reset-password`,
       })
 
       if (error) throw error
