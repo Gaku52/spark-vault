@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 import { IdeaForm } from './IdeaForm'
@@ -11,8 +11,35 @@ export function IdeaList() {
   const [searchQuery, setSearchQuery] = useState('')
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [isFormCollapsed, setIsFormCollapsed] = useState(() => {
+    // localStorageから折りたたみ状態を復元（デフォルトは展開）
+    const saved = localStorage.getItem('sparkVault_formCollapsed')
+    return saved === 'true'
+  })
 
   const { ideas, loading, refresh, deleteIdea } = useIdeas({ searchQuery })
+
+  // 折りたたみ状態をlocalStorageに保存
+  useEffect(() => {
+    localStorage.setItem('sparkVault_formCollapsed', String(isFormCollapsed))
+  }, [isFormCollapsed])
+
+  // ショートカットキー (Ctrl/Cmd + N) で折りたたみトグル
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault()
+        setIsFormCollapsed(prev => !prev)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  const toggleFormCollapse = () => {
+    setIsFormCollapsed(prev => !prev)
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('このアイデアを削除しますか？')) return
@@ -63,13 +90,47 @@ export function IdeaList() {
           />
         )}
 
-        {/* Idea Form */}
+        {/* Idea Form - Collapsible */}
         {!showPasswordChange && (
-          <IdeaForm
-            onSuccess={refresh}
-            editingIdea={editingIdea}
-            onCancel={() => setEditingIdea(null)}
-          />
+          <div className="animate-slideIn">
+            {/* Collapsible Header */}
+            <button
+              onClick={toggleFormCollapse}
+              className="w-full bg-gradient-to-br from-card to-card/50 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-border/50 flex items-center justify-between hover:shadow-2xl transition-all-smooth group mb-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-primary to-secondary rounded-lg group-hover:scale-110 transition-transform">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                    新しいひらめき
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {isFormCollapsed ? 'クリックまたは Ctrl+N で展開' : 'クリックまたは Ctrl+N で折りたたみ'}
+                  </p>
+                </div>
+              </div>
+              <div className={`transition-transform duration-300 ${isFormCollapsed ? '' : 'rotate-180'}`}>
+                <svg className="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+            {/* Form Content */}
+            {!isFormCollapsed && (
+              <div className="animate-scaleIn">
+                <IdeaForm
+                  onSuccess={refresh}
+                  editingIdea={editingIdea}
+                  onCancel={() => setEditingIdea(null)}
+                />
+              </div>
+            )}
+          </div>
         )}
 
         {/* Search */}
