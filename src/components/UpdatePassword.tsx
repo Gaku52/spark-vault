@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { usePasswordValidation } from '../hooks/usePasswordValidation'
 
 interface UpdatePasswordProps {
   onSuccess?: () => void
@@ -8,20 +9,33 @@ interface UpdatePasswordProps {
 
 export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
   const [loading, setLoading] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
+
+  const {
+    password: newPassword,
+    setPassword: setNewPassword,
+    confirmPassword,
+    setConfirmPassword,
+    validatePassword,
+    validateConfirmPassword,
+    getPasswordStrengthColor,
+    getPasswordStrengthLabel
+  } = usePasswordValidation()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (newPassword !== confirmPassword) {
-      setMessage('新しいパスワードが一致しません')
+    // パスワード検証
+    const validation = validatePassword(newPassword)
+    if (!validation.isValid) {
+      setMessage(validation.errors[0])
       return
     }
 
-    if (newPassword.length < 6) {
-      setMessage('パスワードは6文字以上である必要があります')
+    // 確認パスワード検証
+    const confirmError = validateConfirmPassword(newPassword, confirmPassword)
+    if (confirmError) {
+      setMessage(confirmError)
       return
     }
 
@@ -51,6 +65,8 @@ export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
       setLoading(false)
     }
   }
+
+  const passwordValidation = validatePassword(newPassword)
 
   return (
     <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl border border-border/50 space-y-5 animate-scaleIn">
@@ -84,12 +100,29 @@ export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="12文字以上、大小英数字・特殊文字を含む"
             className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
             required
             disabled={loading}
-            minLength={6}
+            minLength={12}
           />
+          {newPassword && (
+            <div className="text-xs space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">強度:</span>
+                <span className={`font-semibold ${getPasswordStrengthColor(passwordValidation.strength)}`}>
+                  {getPasswordStrengthLabel(passwordValidation.strength)}
+                </span>
+              </div>
+              {passwordValidation.errors.length > 0 && (
+                <ul className="text-red-600 space-y-0.5">
+                  {passwordValidation.errors.map((error, idx) => (
+                    <li key={idx}>• {error}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -101,11 +134,11 @@ export function UpdatePassword({ onSuccess, onCancel }: UpdatePasswordProps) {
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="上記と同じパスワードを入力"
             className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
             required
             disabled={loading}
-            minLength={6}
+            minLength={12}
           />
         </div>
 

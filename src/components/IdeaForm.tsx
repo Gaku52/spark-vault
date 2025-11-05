@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
+import { ideaSchema } from '../schemas/ideaSchema'
+import { z } from 'zod'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
 type ActionType = Database['public']['Tables']['ideas']['Row']['action_type']
@@ -17,6 +19,7 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
   const [actionType, setActionType] = useState<ActionType>('pending')
   const [tags, setTags] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (editingIdea) {
@@ -38,6 +41,7 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrors({})
 
     try {
       setLoading(true)
@@ -49,6 +53,25 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
         .split(',')
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0)
+
+      // Zod検証
+      const validationResult = ideaSchema.safeParse({
+        title,
+        content,
+        action_type: actionType,
+        tags: tagsArray
+      })
+
+      if (!validationResult.success) {
+        const fieldErrors: Record<string, string> = {}
+        validationResult.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0].toString()] = err.message
+          }
+        })
+        setErrors(fieldErrors)
+        return
+      }
 
       const ideaData = {
         title,
@@ -78,7 +101,7 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
       onSuccess()
     } catch (error) {
       console.error('Error saving idea:', error)
-      alert('アイデアの保存に失敗しました')
+      setErrors({ submit: 'アイデアの保存に失敗しました' })
     } finally {
       setLoading(false)
     }
@@ -107,10 +130,15 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="アイデアのタイトルを入力..."
-          className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
+          className={`w-full px-4 py-3 border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50 ${
+            errors.title ? 'border-red-500' : 'border-border'
+          }`}
           required
           disabled={loading}
         />
+        {errors.title && (
+          <p className="text-xs text-red-600">• {errors.title}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -123,10 +151,15 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
           onChange={(e) => setContent(e.target.value)}
           placeholder="アイデアの詳細を記述してください..."
           rows={4}
-          className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth resize-none placeholder:text-muted-foreground/50"
+          className={`w-full px-4 py-3 border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth resize-none placeholder:text-muted-foreground/50 ${
+            errors.content ? 'border-red-500' : 'border-border'
+          }`}
           required
           disabled={loading}
         />
+        {errors.content && (
+          <p className="text-xs text-red-600">• {errors.content}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -163,11 +196,22 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             placeholder="例: アイデア, 便利ツール"
-            className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
+            className={`w-full px-4 py-3 border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50 ${
+              errors.tags ? 'border-red-500' : 'border-border'
+            }`}
             disabled={loading}
           />
+          {errors.tags && (
+            <p className="text-xs text-red-600">• {errors.tags}</p>
+          )}
         </div>
       </div>
+
+      {errors.submit && (
+        <div className="p-4 rounded-xl text-sm text-center bg-red-50 text-red-700 border border-red-200 animate-fadeIn">
+          {errors.submit}
+        </div>
+      )}
 
       <div className="flex gap-3 pt-2">
         <button
