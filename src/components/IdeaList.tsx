@@ -105,11 +105,14 @@ export function IdeaList() {
                   </svg>
                 </div>
                 <div className="text-left">
-                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">
                     新しいひらめき
                   </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
                     {isFormCollapsed ? 'クリックまたは Ctrl+N で展開' : 'クリックまたは Ctrl+N で折りたたみ'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 sm:hidden">
+                    {isFormCollapsed ? 'タップで展開' : 'タップで折りたたみ'}
                   </p>
                 </div>
               </div>
