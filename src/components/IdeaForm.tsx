@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 import { ideaSchema } from '../schemas/ideaSchema'
-import { z } from 'zod'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
 type ActionType = Database['public']['Tables']['ideas']['Row']['action_type']
