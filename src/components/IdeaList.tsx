@@ -1,53 +1,27 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 import { IdeaForm } from './IdeaForm'
 import { UpdatePassword } from './UpdatePassword'
+import { useIdeas } from '../hooks/useIdeas'
+import { ACTION_TYPES, FILTER_BUTTONS } from '../constants/ideas'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
 type ActionType = Database['public']['Tables']['ideas']['Row']['action_type']
 
 export function IdeaList() {
-  const [ideas, setIdeas] = useState<Idea[]>([])
-  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<ActionType | 'all'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
 
-  const fetchIdeas = useCallback(async () => {
-    try {
-      setLoading(true)
-      let query = supabase
-        .from('ideas')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (filter !== 'all') {
-        query = query.eq('action_type', filter)
-      }
-
-      const { data, error } = await query
-
-      if (error) throw error
-      setIdeas(data || [])
-    } catch (error) {
-      console.error('Error fetching ideas:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [filter])
-
-  useEffect(() => {
-    fetchIdeas()
-  }, [fetchIdeas])
+  const { ideas, loading, refresh, deleteIdea } = useIdeas({ filter, searchQuery })
 
   const handleDelete = async (id: string) => {
     if (!confirm('このアイデアを削除しますか？')) return
 
     try {
-      const { error } = await supabase.from('ideas').delete().eq('id', id)
-      if (error) throw error
-      fetchIdeas()
+      await deleteIdea(id)
     } catch (error) {
       console.error('Error deleting idea:', error)
     }
@@ -55,24 +29,6 @@ export function IdeaList() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-  }
-
-  const getActionTypeLabel = (actionType: ActionType) => {
-    const labels = {
-      build_app: 'アプリ化する',
-      use_existing: '既存ツールで補完',
-      pending: '保留'
-    }
-    return labels[actionType]
-  }
-
-  const getActionTypeColor = (actionType: ActionType) => {
-    const colors = {
-      build_app: 'bg-purple-100 text-purple-800 border-purple-300',
-      use_existing: 'bg-blue-100 text-blue-800 border-blue-300',
-      pending: 'bg-gray-100 text-gray-800 border-gray-300'
-    }
-    return colors[actionType]
   }
 
   return (
@@ -113,54 +69,71 @@ export function IdeaList() {
         {/* Idea Form */}
         {!showPasswordChange && (
           <IdeaForm
-            onSuccess={fetchIdeas}
+            onSuccess={refresh}
             editingIdea={editingIdea}
             onCancel={() => setEditingIdea(null)}
           />
         )}
 
-        {/* Filter */}
-        <div className="flex gap-2 flex-wrap animate-slideIn">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 sm:px-6 py-2.5 rounded-xl font-medium transition-all-smooth transform hover:scale-105 ${
-              filter === 'all'
-                ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/30'
-                : 'bg-muted/50 text-muted-foreground hover:bg-muted backdrop-blur-sm'
-            }`}
-          >
-            すべて
-          </button>
-          <button
-            onClick={() => setFilter('build_app')}
-            className={`px-4 sm:px-6 py-2.5 rounded-xl font-medium transition-all-smooth transform hover:scale-105 ${
-              filter === 'build_app'
-                ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg shadow-purple-500/30'
-                : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200'
-            }`}
-          >
-            アプリ化する
-          </button>
-          <button
-            onClick={() => setFilter('use_existing')}
-            className={`px-4 sm:px-6 py-2.5 rounded-xl font-medium transition-all-smooth transform hover:scale-105 ${
-              filter === 'use_existing'
-                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30'
-                : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
-            }`}
-          >
-            既存ツールで補完
-          </button>
-          <button
-            onClick={() => setFilter('pending')}
-            className={`px-4 sm:px-6 py-2.5 rounded-xl font-medium transition-all-smooth transform hover:scale-105 ${
-              filter === 'pending'
-                ? 'bg-gradient-to-r from-gray-600 to-gray-500 text-white shadow-lg shadow-gray-500/30'
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-            }`}
-          >
-            保留
-          </button>
+        {/* Search & Filter */}
+        <div className="space-y-4 animate-slideIn">
+          {/* Search Bar */}
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="アイデアを検索..."
+              className="w-full px-4 py-3 pl-12 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
+            />
+            <svg
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex gap-2 flex-wrap">
+            {FILTER_BUTTONS.map((btn) => (
+              <button
+                key={btn.value}
+                onClick={() => setFilter(btn.value)}
+                className={`px-4 sm:px-6 py-2.5 rounded-xl font-medium transition-all-smooth transform hover:scale-105 ${
+                  filter === btn.value
+                    ? btn.value === 'all'
+                      ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/30'
+                      : btn.value === 'build_app'
+                      ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg shadow-purple-500/30'
+                      : btn.value === 'use_existing'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30'
+                      : 'bg-gradient-to-r from-gray-600 to-gray-500 text-white shadow-lg shadow-gray-500/30'
+                    : btn.value === 'all'
+                    ? 'bg-muted/50 text-muted-foreground hover:bg-muted backdrop-blur-sm'
+                    : btn.value === 'build_app'
+                    ? 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200'
+                    : btn.value === 'use_existing'
+                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Ideas List */}
@@ -219,8 +192,8 @@ export function IdeaList() {
                   </p>
 
                   <div className="flex gap-2 items-center flex-wrap pt-2">
-                    <span className={`text-xs sm:text-sm px-3 py-1.5 rounded-full border font-medium ${getActionTypeColor(idea.action_type)} transition-all-smooth hover:scale-105`}>
-                      {getActionTypeLabel(idea.action_type)}
+                    <span className={`text-xs sm:text-sm px-3 py-1.5 rounded-full border font-medium ${ACTION_TYPES[idea.action_type].color} transition-all-smooth hover:scale-105`}>
+                      {ACTION_TYPES[idea.action_type].icon} {ACTION_TYPES[idea.action_type].label}
                     </span>
                     {idea.tags.length > 0 && (
                       <div className="flex gap-1.5 flex-wrap">
