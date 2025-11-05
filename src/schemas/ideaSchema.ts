@@ -8,9 +8,6 @@ export const ideaSchema = z.object({
   content: z
     .string()
     .max(5000, '内容は5000文字以内で入力してください'),
-  action_type: z.enum(['build_app', 'use_existing', 'pending'], {
-    errorMap: () => ({ message: '実装方法を選択してください' })
-  }),
   tags: z
     .array(z.string().min(1).max(50))
     .max(10, 'タグは10個まで登録できます')

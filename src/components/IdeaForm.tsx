@@ -15,7 +15,6 @@ interface IdeaFormProps {
 export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [actionType, setActionType] = useState<ActionType>('pending')
   const [tags, setTags] = useState('')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -24,7 +23,6 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
     if (editingIdea) {
       setTitle(editingIdea.title)
       setContent(editingIdea.content)
-      setActionType(editingIdea.action_type)
       setTags(editingIdea.tags.join(', '))
     } else {
       resetForm()
@@ -34,7 +32,6 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
   const resetForm = () => {
     setTitle('')
     setContent('')
-    setActionType('pending')
     setTags('')
   }
 
@@ -57,7 +54,6 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
       const validationResult = ideaSchema.safeParse({
         title,
         content,
-        action_type: actionType,
         tags: tagsArray
       })
 
@@ -75,7 +71,7 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
       const ideaData = {
         title,
         content,
-        action_type: actionType,
+        action_type: 'pending' as ActionType, // 固定値として保存
         tags: tagsArray,
         user_id: user.id,
       }
@@ -161,49 +157,24 @@ export function IdeaForm({ onSuccess, editingIdea, onCancel }: IdeaFormProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label htmlFor="actionType" className="block text-sm font-semibold text-foreground mb-2">
-            実装方法
-          </label>
-          <select
-            id="actionType"
-            value={actionType}
-            onChange={(e) => setActionType(e.target.value as ActionType)}
-            className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth appearance-none cursor-pointer"
-            disabled={loading}
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 0.75rem center',
-              backgroundSize: '1.25rem'
-            }}
-          >
-            <option value="build_app">🚀 アプリ化する</option>
-            <option value="use_existing">🔧 既存ツールで補完</option>
-            <option value="pending">⏸️ 保留</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="tags" className="block text-sm font-semibold text-foreground mb-2">
-            タグ（カンマ区切り）
-          </label>
-          <input
-            id="tags"
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="例: アイデア, 便利ツール"
-            className={`w-full px-4 py-3 border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50 ${
-              errors.tags ? 'border-red-500' : 'border-border'
-            }`}
-            disabled={loading}
-          />
-          {errors.tags && (
-            <p className="text-xs text-red-600">• {errors.tags}</p>
-          )}
-        </div>
+      <div className="space-y-2">
+        <label htmlFor="tags" className="block text-sm font-semibold text-foreground mb-2">
+          タグ（カンマ区切り、任意）
+        </label>
+        <input
+          id="tags"
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="例: アイデア, ビジネス, 旅行"
+          className={`w-full px-4 py-3 border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50 ${
+            errors.tags ? 'border-red-500' : 'border-border'
+          }`}
+          disabled={loading}
+        />
+        {errors.tags && (
+          <p className="text-xs text-red-600">• {errors.tags}</p>
+        )}
       </div>
 
       {errors.submit && (

@@ -3,15 +3,13 @@ import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
-type ActionType = Database['public']['Tables']['ideas']['Row']['action_type']
 
 interface UseIdeasOptions {
-  filter?: ActionType | 'all'
   searchQuery?: string
 }
 
 export function useIdeas(options: UseIdeasOptions = {}) {
-  const { filter = 'all', searchQuery = '' } = options
+  const { searchQuery = '' } = options
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -21,16 +19,10 @@ export function useIdeas(options: UseIdeasOptions = {}) {
       setLoading(true)
       setError(null)
 
-      let query = supabase
+      const { data, error: fetchError } = await supabase
         .from('ideas')
         .select('*')
         .order('created_at', { ascending: false })
-
-      if (filter !== 'all') {
-        query = query.eq('action_type', filter)
-      }
-
-      const { data, error: fetchError } = await query
 
       if (fetchError) throw fetchError
 
@@ -51,7 +43,7 @@ export function useIdeas(options: UseIdeasOptions = {}) {
     } finally {
       setLoading(false)
     }
-  }, [filter, searchQuery])
+  }, [searchQuery])
 
   useEffect(() => {
     fetchIdeas()

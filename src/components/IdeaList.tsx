@@ -4,18 +4,15 @@ import type { Database } from '../lib/database.types'
 import { IdeaForm } from './IdeaForm'
 import { UpdatePassword } from './UpdatePassword'
 import { useIdeas } from '../hooks/useIdeas'
-import { ACTION_TYPES, FILTER_BUTTONS } from '../constants/ideas'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
-type ActionType = Database['public']['Tables']['ideas']['Row']['action_type']
 
 export function IdeaList() {
-  const [filter, setFilter] = useState<ActionType | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
 
-  const { ideas, loading, refresh, deleteIdea } = useIdeas({ filter, searchQuery })
+  const { ideas, loading, refresh, deleteIdea } = useIdeas({ searchQuery })
 
   const handleDelete = async (id: string) => {
     if (!confirm('このアイデアを削除しますか？')) return
@@ -75,9 +72,8 @@ export function IdeaList() {
           />
         )}
 
-        {/* Search & Filter */}
-        <div className="space-y-4 animate-slideIn">
-          {/* Search Bar */}
+        {/* Search */}
+        <div className="animate-slideIn">
           <div className="relative">
             <input
               type="text"
@@ -104,35 +100,6 @@ export function IdeaList() {
                 </svg>
               </button>
             )}
-          </div>
-
-          {/* Filter Buttons */}
-          <div className="flex gap-2 flex-wrap">
-            {FILTER_BUTTONS.map((btn) => (
-              <button
-                key={btn.value}
-                onClick={() => setFilter(btn.value)}
-                className={`px-4 sm:px-6 py-2.5 rounded-xl font-medium transition-all-smooth transform hover:scale-105 ${
-                  filter === btn.value
-                    ? btn.value === 'all'
-                      ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/30'
-                      : btn.value === 'build_app'
-                      ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg shadow-purple-500/30'
-                      : btn.value === 'use_existing'
-                      ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30'
-                      : 'bg-gradient-to-r from-gray-600 to-gray-500 text-white shadow-lg shadow-gray-500/30'
-                    : btn.value === 'all'
-                    ? 'bg-muted/50 text-muted-foreground hover:bg-muted backdrop-blur-sm'
-                    : btn.value === 'build_app'
-                    ? 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200'
-                    : btn.value === 'use_existing'
-                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
-                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-                }`}
-              >
-                {btn.label}
-              </button>
-            ))}
           </div>
         </div>
 
@@ -191,23 +158,18 @@ export function IdeaList() {
                     {idea.content}
                   </p>
 
-                  <div className="flex gap-2 items-center flex-wrap pt-2">
-                    <span className={`text-xs sm:text-sm px-3 py-1.5 rounded-full border font-medium ${ACTION_TYPES[idea.action_type].color} transition-all-smooth hover:scale-105`}>
-                      {ACTION_TYPES[idea.action_type].icon} {ACTION_TYPES[idea.action_type].label}
-                    </span>
-                    {idea.tags.length > 0 && (
-                      <div className="flex gap-1.5 flex-wrap">
-                        {idea.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="text-xs px-2.5 py-1 bg-gradient-to-r from-accent to-accent/80 text-accent-foreground rounded-lg font-medium transition-all-smooth hover:scale-105 hover:shadow-sm"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  {idea.tags.length > 0 && (
+                    <div className="flex gap-1.5 flex-wrap pt-2">
+                      {idea.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="text-xs px-2.5 py-1 bg-gradient-to-r from-accent to-accent/80 text-accent-foreground rounded-lg font-medium transition-all-smooth hover:scale-105 hover:shadow-sm"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-2 pt-2 border-t border-border/50">
                     <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
