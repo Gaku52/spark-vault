@@ -27,3 +27,15 @@ export interface IdeaFilters {
   tags?: string[]
   searchQuery?: string
 }
+
+// ビューモードの型定義
+export type ViewMode = 'grid' | 'list' | 'compact' | 'table'
+
+// ソートオプションの型定義
+export type SortField = 'title' | 'created_at' | 'updated_at' | 'action_type'
+export type SortOrder = 'asc' | 'desc'
+
+export interface SortOptions {
+  field: SortField
+  order: SortOrder
+}

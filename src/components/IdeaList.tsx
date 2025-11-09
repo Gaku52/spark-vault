@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
+import type { ViewMode, SortField, SortOrder } from '../types/idea'
 import { IdeaForm } from './IdeaForm'
 import { UpdatePassword } from './UpdatePassword'
+import { ViewToolbar } from './ViewToolbar'
+import { IdeaDetailModal } from './IdeaDetailModal'
+import { GridView } from './views/GridView'
+import { ListView } from './views/ListView'
+import { CompactView } from './views/CompactView'
+import { TableView } from './views/TableView'
 import { useIdeas } from '../hooks/useIdeas'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
@@ -11,18 +18,44 @@ export function IdeaList() {
   const [searchQuery, setSearchQuery] = useState('')
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null)
   const [isFormCollapsed, setIsFormCollapsed] = useState(() => {
     // localStorageから折りたたみ状態を復元（デフォルトは展開）
     const saved = localStorage.getItem('sparkVault_formCollapsed')
     return saved === 'true'
   })
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = localStorage.getItem('spark-vault-view-mode')
+    return (saved as ViewMode) || 'grid'
+  })
+  const [sortField, setSortField] = useState<SortField>(() => {
+    const saved = localStorage.getItem('spark-vault-sort-field')
+    return (saved as SortField) || 'created_at'
+  })
+  const [sortOrder, setSortOrder] = useState<SortOrder>(() => {
+    const saved = localStorage.getItem('spark-vault-sort-order')
+    return (saved as SortOrder) || 'desc'
+  })
 
-  const { ideas, loading, refresh, deleteIdea } = useIdeas({ searchQuery })
+  const { ideas, loading, refresh, deleteIdea } = useIdeas({ searchQuery, sortField, sortOrder })
 
   // 折りたたみ状態をlocalStorageに保存
   useEffect(() => {
     localStorage.setItem('sparkVault_formCollapsed', String(isFormCollapsed))
   }, [isFormCollapsed])
+
+  // 設定をlocalStorageに保存
+  useEffect(() => {
+    localStorage.setItem('spark-vault-view-mode', viewMode)
+  }, [viewMode])
+
+  useEffect(() => {
+    localStorage.setItem('spark-vault-sort-field', sortField)
+  }, [sortField])
+
+  useEffect(() => {
+    localStorage.setItem('spark-vault-sort-order', sortOrder)
+  }, [sortOrder])
 
   // ショートカットキー (Ctrl/Cmd + N) で折りたたみトグル
   useEffect(() => {
@@ -53,6 +86,24 @@ export function IdeaList() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
+  }
+
+  const handleSortChange = (field: SortField, order: SortOrder) => {
+    setSortField(field)
+    setSortOrder(order)
+  }
+
+  const renderIdeasView = () => {
+    switch (viewMode) {
+      case 'grid':
+        return <GridView ideas={ideas} onEdit={setEditingIdea} onDelete={handleDelete} />
+      case 'list':
+        return <ListView ideas={ideas} onIdeaClick={setSelectedIdea} />
+      case 'compact':
+        return <CompactView ideas={ideas} onIdeaClick={setSelectedIdea} />
+      case 'table':
+        return <TableView ideas={ideas} onIdeaClick={setSelectedIdea} onEdit={setEditingIdea} onDelete={handleDelete} />
+    }
   }
 
   return (
@@ -136,8 +187,8 @@ export function IdeaList() {
           </div>
         )}
 
-        {/* Search */}
-        <div className="animate-slideIn">
+        {/* Search & View Controls */}
+        <div className="space-y-4 animate-slideIn">
           <div className="relative">
             <input
               type="text"
@@ -165,6 +216,14 @@ export function IdeaList() {
               </button>
             )}
           </div>
+
+          <ViewToolbar
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            sortField={sortField}
+            sortOrder={sortOrder}
+            onSortChange={handleSortChange}
+          />
         </div>
 
         {/* Ideas List */}
@@ -180,81 +239,25 @@ export function IdeaList() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
-            <p className="text-lg text-muted-foreground mb-2">アイデアがありません</p>
-            <p className="text-sm text-muted-foreground">上のフォームから新しいひらめきを記録しましょう</p>
+            <p className="text-lg text-muted-foreground mb-2">
+              {searchQuery ? '検索結果がありません' : 'アイデアがありません'}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {searchQuery ? '検索キーワードを変更してみてください' : '上のフォームから新しいひらめきを記録しましょう'}
+            </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:gap-5 lg:grid-cols-2">
-            {ideas.map((idea, index) => (
-              <div
-                key={idea.id}
-                className="bg-card/80 backdrop-blur-sm p-5 sm:p-6 rounded-2xl shadow-md border border-border/50 space-y-4 card-hover animate-fadeIn"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="space-y-3">
-                  <div className="flex justify-between items-start gap-4">
-                    <h3 className="font-bold text-lg sm:text-xl text-foreground flex-1 leading-tight">
-                      {idea.title}
-                    </h3>
-                    <div className="flex gap-1.5 flex-shrink-0">
-                      <button
-                        onClick={() => setEditingIdea(idea)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all-smooth hover:scale-110"
-                        aria-label="編集"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(idea.id)}
-                        className="p-2 text-destructive hover:bg-red-50 rounded-lg transition-all-smooth hover:scale-110"
-                        aria-label="削除"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-
-                  <p className="text-foreground/80 whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
-                    {idea.content}
-                  </p>
-
-                  {idea.tags.length > 0 && (
-                    <div className="flex gap-1.5 flex-wrap pt-2">
-                      {idea.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="text-xs px-2.5 py-1 bg-gradient-to-r from-accent to-accent/80 text-accent-foreground rounded-lg font-medium transition-all-smooth hover:scale-105 hover:shadow-sm"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-                    <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(idea.created_at).toLocaleString('ja-JP', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          renderIdeasView()
         )}
       </div>
+
+      {/* Detail Modal */}
+      <IdeaDetailModal
+        idea={selectedIdea}
+        onClose={() => setSelectedIdea(null)}
+        onEdit={setEditingIdea}
+        onDelete={handleDelete}
+      />
     </div>
   )
 }
