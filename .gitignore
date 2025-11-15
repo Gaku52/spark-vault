@@ -34,3 +34,10 @@ dist-ssr
 .supabase
 .vercel
 .vercel-anon-key.txt
+
+# Capacitor
+ios/
+android/
+*.xcworkspace
+*.xcodeproj
+capacitor.config.ts.backup
