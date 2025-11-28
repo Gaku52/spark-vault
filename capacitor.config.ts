@@ -19,6 +19,22 @@ const config: CapacitorConfig = {
       launchShowDuration: 2000,
       backgroundColor: '#8b5cf6',
       showSpinner: false,
+      iosSpinnerStyle: 'large',
+      androidSpinnerStyle: 'large',
+      splashFullScreen: true,
+      splashImmersive: true,
+    },
+    StatusBar: {
+      style: 'dark',
+      backgroundColor: '#8b5cf6',
+    },
+    Keyboard: {
+      resize: 'body',
+      style: 'dark',
+      resizeOnFullScreen: true,
+    },
+    Haptics: {
+      enabled: true,
     },
   },
 };

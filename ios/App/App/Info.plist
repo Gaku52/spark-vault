@@ -45,5 +45,13 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>このアプリはユーザーの行動を追跡しません。アプリの改善のためにのみ使用状況データを収集します。</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>アイデアに画像を添付するために写真ライブラリへのアクセスが必要です。</string>
+	<key>NSCameraUsageDescription</key>
+	<string>アイデアに写真を撮影して添付するためにカメラへのアクセスが必要です。</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
