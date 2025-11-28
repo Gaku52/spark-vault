@@ -36,7 +36,11 @@ dist-ssr
 .vercel-anon-key.txt
 
 # Capacitor
-ios/
+ios/App/App.xcodeproj/
+ios/App/App.xcworkspace/
+ios/App/Pods/
+ios/App/Podfile.lock
+ios/App/build/
 android/
 *.xcworkspace
 *.xcodeproj
