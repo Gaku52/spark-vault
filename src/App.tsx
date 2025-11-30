@@ -29,7 +29,7 @@ function App() {
         Keyboard.setAccessoryBarVisible({ isVisible: true })
       } catch (error) {
         // Web環境ではエラーになるが無視
-        console.log('Capacitor plugins not available (running on web)')
+        console.log('Capacitor plugins not available (running on web)', error)
       }
     }
 
