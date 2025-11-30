@@ -13,9 +13,39 @@ Xcodeでプロジェクトをビルドし、技術的な問題がないか確認
 
 ## 手順
 
-### 1. Webアプリのビルド
+### 1. 環境変数の確認
 
-まず、Reactアプリをビルドします。
+アプリがSupabaseに接続するために、環境変数が正しく設定されていることを確認します。
+
+#### 1.1 環境変数ファイルの確認
+
+```bash
+cd /Users/gaku/spark-vault
+cat .env.local
+```
+
+**必須の環境変数**:
+```bash
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_APP_URL=http://localhost:5173
+```
+
+**確認項目**:
+- [ ] `.env.local` ファイルが存在する
+- [ ] `VITE_SUPABASE_URL` が設定されている
+- [ ] `VITE_SUPABASE_ANON_KEY` が設定されている
+- [ ] 値が `your_*` などのプレースホルダーではない
+
+**ファイルがない場合**:
+```bash
+cp .env.example .env.local
+# .env.local を編集して実際の値を入力
+```
+
+### 2. Webアプリのビルド
+
+Reactアプリをビルドします。
 
 ```bash
 cd /Users/gaku/spark-vault
@@ -33,7 +63,7 @@ Capacitor sync completed!
 - Lintエラー → `npm run lint` で確認
 - 依存関係エラー → `npm install` を再実行
 
-### 2. Xcodeでプロジェクトを開く
+### 3. Xcodeでプロジェクトを開く
 
 ```bash
 npm run cap:open:ios
@@ -46,9 +76,9 @@ open ios/App/App.xcworkspace
 
 **注意**: `.xcodeproj` ではなく `.xcworkspace` を開くこと
 
-### 3. ビルド設定の確認
+### 4. ビルド設定の確認
 
-#### 3.1 ターゲット設定
+#### 4.1 ターゲット設定
 
 1. 左側のナビゲータで `App` プロジェクトを選択
 2. `TARGETS` → `App` を選択
@@ -59,7 +89,7 @@ open ios/App/App.xcworkspace
    - **Build**: `1`
    - **Deployment Target**: `iOS 13.0` 以上
 
-#### 3.2 Signing & Capabilities
+#### 4.2 Signing & Capabilities
 
 1. `Signing & Capabilities` タブを選択
 2. **Automatically manage signing** にチェック
@@ -68,14 +98,14 @@ open ios/App/App.xcworkspace
 
 **初回の場合**: Xcodeが自動的に開発用証明書を作成します
 
-### 4. ビルドの実行
+### 5. ビルドの実行
 
-#### 4.1 ビルドスキームの選択
+#### 5.1 ビルドスキームの選択
 
 1. 上部ツールバーで `App` スキームが選択されていることを確認
 2. デバイスとして `Any iOS Device (arm64)` を選択
 
-#### 4.2 ビルド実行
+#### 5.2 ビルド実行
 
 **方法1: メニューから**
 - `Product` → `Build` (⌘B)
@@ -83,7 +113,7 @@ open ios/App/App.xcworkspace
 **方法2: ショートカット**
 - `⌘B` (Command + B)
 
-#### 4.3 ビルド結果の確認
+#### 5.3 ビルド結果の確認
 
 **成功した場合**:
 - 画面上部に "Build Succeeded" と表示
@@ -93,7 +123,7 @@ open ios/App/App.xcworkspace
 - 画面上部に "Build Failed" と表示
 - 左側の Issue Navigator（⚠️アイコン）にエラー一覧が表示される
 
-### 5. ビルドログの確認
+### 6. ビルドログの確認
 
 1. 右上の `Report Navigator` アイコン（時計マーク）をクリック
 2. 最新のビルドログを選択
@@ -156,6 +186,8 @@ npm run cap:sync
 
 ビルドテストが完了したら、以下を確認:
 
+- [ ] 環境変数が正しく設定されている
+- [ ] `.env.local` ファイルが存在する
 - [ ] ビルドが成功した（"Build Succeeded"）
 - [ ] エラーが0件
 - [ ] 重大な警告がない

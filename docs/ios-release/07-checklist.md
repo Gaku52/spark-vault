@@ -14,6 +14,9 @@
 
 詳細: [01-xcode-build-test.md](./01-xcode-build-test.md)
 
+- [ ] 環境変数が正しく設定されている
+- [ ] `.env.local` ファイルが存在する
+- [ ] Supabase接続情報が正しい
 - [ ] Webアプリのビルド成功 (`npm run build:ios`)
 - [ ] Xcodeプロジェクトが開ける
 - [ ] Bundle ID が正しい (`com.ogadix.sparkvault`)
@@ -158,6 +161,13 @@ https://gaku52.github.io/spark-vault/privacy-policy.html
 #### 証明書とプロビジョニング
 - [ ] Distribution証明書を確認/作成
 - [ ] プロビジョニングプロファイルをダウンロード
+
+#### 環境変数の最終確認
+- [ ] `.env.local` または `.env` ファイルが存在
+- [ ] Supabase URL が本番環境のもの
+- [ ] Supabase Anon Key が本番環境のもの
+- [ ] App URL が本番環境のURL
+- [ ] 値がプレースホルダーではない
 
 #### アーカイブ準備
 - [ ] 最終ビルド (`npm run build`)

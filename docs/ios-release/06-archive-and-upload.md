@@ -37,9 +37,34 @@ Xcodeでアプリをアーカイブし、App Store Connectにアップロード�
 1. `Download Manual Profiles` をクリック
 2. Xcode が自動的にプロファイルをダウンロード
 
-### 2. アーカイブの準備
+### 2. 環境変数の最終確認
 
-#### 2.1 Webアプリの最終ビルド
+**重要**: 本番用のSupabase接続情報が正しく設定されていることを確認します。
+
+```bash
+cd /Users/gaku/spark-vault
+cat .env.local
+```
+
+**必須の環境変数**:
+```bash
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_APP_URL=https://your-production-url.com
+```
+
+**確認項目**:
+- [ ] `.env.local` または `.env` ファイルが存在
+- [ ] Supabase URL が本番環境のもの
+- [ ] Supabase Anon Key が本番環境のもの
+- [ ] App URL が本番環境のURL（または適切なURL）
+- [ ] 値がプレースホルダーではない
+
+**注意**: これらの環境変数はビルド時に埋め込まれます。間違った値でビルドすると、アプリが正常に動作しません。
+
+### 3. アーカイブの準備
+
+#### 3.1 Webアプリの最終ビルド
 
 ```bash
 cd /Users/gaku/spark-vault
@@ -60,7 +85,7 @@ ls -lh dist/
 # distフォルダにindex.html, assets などが存在することを確認
 ```
 
-#### 2.2 バージョン番号の確認
+#### 3.2 バージョン番号の確認
 
 1. Xcodeで `ios/App/App.xcworkspace` を開く
 
@@ -72,7 +97,7 @@ ls -lh dist/
 
 **注意**: 審査に再提出する場合は Build 番号を増やす（例: 2, 3, ...）
 
-#### 2.3 ビルドコンフィギュレーションの設定
+#### 3.3 ビルドコンフィギュレーションの設定
 
 1. Xcodeの上部ツールバーでスキームを選択
 
@@ -84,15 +109,15 @@ ls -lh dist/
 
 5. `Close`
 
-### 3. アーカイブの作成
+### 4. アーカイブの作成
 
-#### 3.1 デバイスターゲットの選択
+#### 4.1 デバイスターゲットの選択
 
 1. Xcodeの上部ツールバーで `Any iOS Device (arm64)` を選択
 
 **注意**: シミュレータやspecificデバイスではなく、必ず "Any iOS Device" を選択
 
-#### 3.2 アーカイブの実行
+#### 4.2 アーカイブの実行
 
 **方法1: メニューから**
 1. `Product` → `Archive`
@@ -110,7 +135,7 @@ ls -lh dist/
 - エラーメッセージを確認
 - [トラブルシューティング](#トラブルシューティング) を参照
 
-### 4. アーカイブの検証
+### 5. アーカイブの検証
 
 Organizer ウィンドウで:
 
@@ -136,9 +161,9 @@ Organizer ウィンドウで:
 - 軽微な警告（Missing compliance など）は無視してOK
 - 重大なエラーの場合は修正が必要
 
-### 5. App Store Connect へのアップロード
+### 6. App Store Connect へのアップロード
 
-#### 5.1 アップロードの開始
+#### 6.1 アップロードの開始
 
 1. Organizer で同じアーカイブを選択
 
@@ -165,7 +190,7 @@ Organizer ウィンドウで:
    - Version: 1.0 (1)
    - **Upload** をクリック
 
-#### 5.2 アップロード処理
+#### 6.2 アップロード処理
 
 **処理時間**: 5-15分（ネットワーク速度による）
 
@@ -178,9 +203,9 @@ Organizer ウィンドウで:
 - "Upload Successful" メッセージ
 - **Done** をクリック
 
-### 6. App Store Connect での確認
+### 7. App Store Connect での確認
 
-#### 6.1 処理待機
+#### 7.1 処理待機
 
 1. [App Store Connect](https://appstoreconnect.apple.com/) にログイン
 
@@ -190,7 +215,7 @@ Organizer ウィンドウで:
 
 **注意**: アップロード直後は表示されません。処理に **10-60分** かかります。
 
-#### 6.2 ビルドの選択
+#### 7.2 ビルドの選択
 
 処理が完了したら:
 
@@ -200,16 +225,16 @@ Organizer ウィンドウで:
 
 3. **完了**
 
-#### 6.3 輸出コンプライアンス
+#### 7.3 輸出コンプライアンス
 
 **App Uses Encryption** のダイアログが表示された場合:
 
 - **No** を選択
 - Info.plist で `ITSAppUsesNonExemptEncryption = false` と設定済み
 
-### 7. 審査へ提出
+### 8. 審査へ提出
 
-#### 7.1 最終確認
+#### 8.1 最終確認
 
 すべての情報が入力されていることを確認:
 
@@ -219,7 +244,7 @@ Organizer ウィンドウで:
 - [ ] アプリレビュー情報（デモアカウント）
 - [ ] ビルドが選択されている
 
-#### 7.2 審査への提出
+#### 8.2 審査への提出
 
 1. ページ上部の **「審査に提出」** をクリック
 
@@ -266,6 +291,8 @@ Organizer ウィンドウで:
 
 アップロードが完了したら:
 
+- [ ] 環境変数が正しく設定されている
+- [ ] 本番用のSupabase接続情報を使用
 - [ ] アーカイブが成功した
 - [ ] 検証が成功した
 - [ ] App Store Connect にアップロード完了
