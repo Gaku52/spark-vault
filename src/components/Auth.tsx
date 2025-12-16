@@ -8,12 +8,17 @@ type AuthMode = 'signin' | 'signup' | 'reset'
 
 const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin
 
-export function Auth() {
+interface AuthProps {
+  initialMode?: AuthMode
+  onSuccess?: () => void
+}
+
+export function Auth({ initialMode = 'signin', onSuccess }: AuthProps = {}) {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
-  const [mode, setMode] = useState<AuthMode>('signin')
+  const [mode, setMode] = useState<AuthMode>(initialMode)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const { deviceId } = useDeviceId()
 
@@ -75,11 +80,17 @@ export function Auth() {
           if (updateError) {
             console.error('データ移行エラー:', updateError)
             setMessage('アカウントを作成しましたが、データの移行に失敗しました。確認メールを送信しましたので、メールを確認してください。')
+            // エラーの場合は自動で閉じない
             return
           }
         }
 
         setMessage('アカウントを作成しました。確認メールを送信しましたので、メールを確認してください。')
+
+        // アカウント作成成功後、メッセージを読む時間を与えてからモーダルを閉じる
+        setTimeout(() => {
+          onSuccess?.()
+        }, 2000)
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'エラーが発生しました')
@@ -103,6 +114,11 @@ export function Auth() {
       if (error) throw error
 
       setMessage('ログインに成功しました。')
+
+      // ログイン成功後、少し待ってからモーダルを閉じる
+      setTimeout(() => {
+        onSuccess?.()
+      }, 500)
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'エラーが発生しました')
     } finally {

@@ -54,7 +54,7 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
                     <>
                       <p className="font-semibold mb-2">ゲストモード</p>
                       <p className="text-xs mb-4">
-                        現在ゲストモードで使用中です。アカウント登録すると、データをバックアップして複数端末で同期できます。
+                        現在ゲストモードで使用中です。ログイン / 登録すると、データをバックアップして複数端末で同期できます。
                       </p>
                       <button
                         onClick={() => {
@@ -63,7 +63,7 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
                         }}
                         className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                       >
-                        アカウント登録
+                        ログイン / 登録
                       </button>
                     </>
                   ) : (
