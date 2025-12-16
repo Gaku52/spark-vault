@@ -59,6 +59,13 @@ export function IdeaList() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // セッション変更時にデータを再読み込み
+  useEffect(() => {
+    if (session) {
+      refresh()
+    }
+  }, [session, refresh])
+
   // 折りたたみ状態をlocalStorageに保存
   useEffect(() => {
     localStorage.setItem('sparkVault_formCollapsed', String(isFormCollapsed))

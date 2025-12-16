@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
 import { Keyboard } from '@capacitor/keyboard'
 import { Capacitor } from '@capacitor/core'
@@ -21,6 +21,16 @@ export function Auth({ initialMode = 'signin', onSuccess }: AuthProps = {}) {
   const [mode, setMode] = useState<AuthMode>(initialMode)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const { deviceId } = useDeviceId()
+
+  // initialModeが変わったらmodeを同期し、メッセージをクリア
+  useEffect(() => {
+    setMode(initialMode)
+  }, [initialMode])
+
+  // modeが変わったらメッセージをクリア（タブ切り替え時）
+  useEffect(() => {
+    setMessage('')
+  }, [mode])
 
   // iOSキーボード対応: キーボードの高さを監視
   useEffect(() => {
@@ -149,16 +159,18 @@ export function Auth({ initialMode = 'signin', onSuccess }: AuthProps = {}) {
 
   const handleSubmit = mode === 'reset' ? handleResetPassword : mode === 'signup' ? handleSignUp : handleSignIn
 
-  // キーボード表示時のフォーム位置調整
-  const formTransform = keyboardHeight > 0
-    ? `translateY(-${Math.min(keyboardHeight * 0.4, 180)}px)`
-    : 'translateY(0)'
+  // キーボード表示時のフォーム位置調整（メモ化してパフォーマンス改善）
+  const formTransform = useMemo(() => {
+    return keyboardHeight > 0
+      ? `translateY(-${Math.min(keyboardHeight * 0.4, 180)}px)`
+      : 'translateY(0)'
+  }, [keyboardHeight])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
       <div
         className="w-full max-w-md space-y-8 animate-fadeIn transition-all duration-300 ease-out"
-        style={{ transform: formTransform }}
+        style={{ transform: formTransform, willChange: 'transform' }}
       >
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-lg shadow-primary/30 mb-4 animate-scaleIn">
