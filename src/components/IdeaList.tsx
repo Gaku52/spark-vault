@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 import type { ViewMode, SortField, SortOrder } from '../types/idea'
+import type { Session } from '@supabase/supabase-js'
 import { IdeaForm } from './IdeaForm'
 import { UpdatePassword } from './UpdatePassword'
+import { Settings } from './Settings'
+import { Auth } from './Auth'
 import { ViewToolbar } from './ViewToolbar'
 import { IdeaDetailModal } from './IdeaDetailModal'
 import { GridView } from './views/GridView'
@@ -19,6 +22,10 @@ export function IdeaList() {
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showGuestBanner, setShowGuestBanner] = useState(true)
   const [isFormCollapsed, setIsFormCollapsed] = useState(() => {
     // localStorageから折りたたみ状態を復元（デフォルトは展開）
     const saved = localStorage.getItem('sparkVault_formCollapsed')
@@ -38,6 +45,19 @@ export function IdeaList() {
   })
 
   const { ideas, loading, refresh, deleteIdea } = useIdeas({ searchQuery, sortField, sortOrder })
+
+  // セッション取得
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   // 折りたたみ状態をlocalStorageに保存
   useEffect(() => {
@@ -88,6 +108,8 @@ export function IdeaList() {
     await supabase.auth.signOut()
   }
 
+  const isGuest = session?.user?.is_anonymous || session?.user?.user_metadata?.is_guest
+
   const handleSortChange = (field: SortField, order: SortOrder) => {
     setSortField(field)
     setSortOrder(order)
@@ -117,21 +139,43 @@ export function IdeaList() {
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">ひらめきを即座に記録し、未来を創造する</p>
           </div>
-          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all-smooth"
+            title="設定"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Guest Banner */}
+        {isGuest && showGuestBanner && (
+          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-start justify-between gap-3 animate-slideIn">
+            <div className="flex-1">
+              <p className="text-sm text-indigo-900">
+                現在ゲストモードで使用中です。
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="ml-1 text-indigo-600 hover:text-indigo-800 underline font-medium"
+                >
+                  アカウント登録
+                </button>
+                すると、データをバックアップして複数端末で同期できます。
+              </p>
+            </div>
             <button
-              onClick={() => setShowPasswordChange(!showPasswordChange)}
-              className="flex-1 sm:flex-none px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all-smooth"
+              onClick={() => setShowGuestBanner(false)}
+              className="text-indigo-400 hover:text-indigo-600 flex-shrink-0"
             >
-              パスワード変更
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex-1 sm:flex-none px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all-smooth"
-            >
-              ログアウト
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
-        </div>
+        )}
 
         {/* Password Change */}
         {showPasswordChange && (
@@ -258,6 +302,35 @@ export function IdeaList() {
         onEdit={setEditingIdea}
         onDelete={handleDelete}
       />
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <Settings
+          onShowAuth={() => {
+            setShowSettings(false)
+            setShowAuthModal(true)
+          }}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-bold text-gray-800">アカウント登録</h2>
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <Auth />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

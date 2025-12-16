@@ -1,5 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { Keyboard } from '@capacitor/keyboard'
+import { Capacitor } from '@capacitor/core'
+import { useDeviceId } from '../hooks/useDeviceId'
 
 type AuthMode = 'signin' | 'signup' | 'reset'
 
@@ -11,6 +14,26 @@ export function Auth() {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [mode, setMode] = useState<AuthMode>('signin')
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const { deviceId } = useDeviceId()
+
+  // iOSキーボード対応: キーボードの高さを監視
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return
+
+    const showListener = Keyboard.addListener('keyboardWillShow', (info) => {
+      setKeyboardHeight(info.keyboardHeight)
+    })
+
+    const hideListener = Keyboard.addListener('keyboardWillHide', () => {
+      setKeyboardHeight(0)
+    })
+
+    return () => {
+      showListener.remove()
+      hideListener.remove()
+    }
+  }, [])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,17 +42,43 @@ export function Auth() {
       setLoading(true)
       setMessage('')
 
+      // 現在のゲストセッションを取得
+      const { data: { session: guestSession } } = await supabase.auth.getSession()
+      const isGuest = guestSession?.user?.is_anonymous || false
+      const oldUserId = guestSession?.user?.id
+
+      // 新しいアカウントを作成
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: APP_URL,
+          data: {
+            device_id: deviceId,
+          }
         },
       })
 
       if (error) throw error
 
       if (data.user) {
+        // ゲストユーザーだった場合、データを新しいアカウントに移行
+        if (isGuest && oldUserId) {
+          const newUserId = data.user.id
+
+          // ideasテーブルのuser_idを更新（ゲストのデータを新しいアカウントに移行）
+          const { error: updateError } = await supabase
+            .from('ideas')
+            .update({ user_id: newUserId })
+            .eq('user_id', oldUserId)
+
+          if (updateError) {
+            console.error('データ移行エラー:', updateError)
+            setMessage('アカウントを作成しましたが、データの移行に失敗しました。確認メールを送信しましたので、メールを確認してください。')
+            return
+          }
+        }
+
         setMessage('アカウントを作成しました。確認メールを送信しましたので、メールを確認してください。')
       }
     } catch (error) {
@@ -84,9 +133,17 @@ export function Auth() {
 
   const handleSubmit = mode === 'reset' ? handleResetPassword : mode === 'signup' ? handleSignUp : handleSignIn
 
+  // キーボード表示時のフォーム位置調整
+  const formTransform = keyboardHeight > 0
+    ? `translateY(-${Math.min(keyboardHeight * 0.4, 180)}px)`
+    : 'translateY(0)'
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 animate-fadeIn">
+      <div
+        className="w-full max-w-md space-y-8 animate-fadeIn transition-all duration-300 ease-out"
+        style={{ transform: formTransform }}
+      >
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-lg shadow-primary/30 mb-4 animate-scaleIn">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
