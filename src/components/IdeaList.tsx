@@ -104,10 +104,6 @@ export function IdeaList() {
     }
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-  }
-
   const isGuest = session?.user?.is_anonymous || session?.user?.user_metadata?.is_guest
 
   const handleSortChange = (field: SortField, order: SortOrder) => {

@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
-import { Auth } from './components/Auth'
 import { IdeaList } from './components/IdeaList'
 import { ResetPassword } from './components/ResetPassword'
-import type { Session } from '@supabase/supabase-js'
 import { App as CapacitorApp } from '@capacitor/app'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SplashScreen } from '@capacitor/splash-screen'
@@ -13,7 +11,6 @@ import { useGuestAuth } from './hooks/useGuestAuth'
 import { useDeviceId } from './hooks/useDeviceId'
 
 function App() {
-  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const { signInAsGuest } = useGuestAuth()
   const { deviceId, loading: deviceIdLoading } = useDeviceId()
@@ -41,11 +38,9 @@ function App() {
   // 認証状態の初期化と監視
   useEffect(() => {
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session: currentSession } } = await supabase.auth.getSession()
 
-      if (session) {
-        setSession(session)
-      } else if (!deviceIdLoading && deviceId) {
+      if (!currentSession && !deviceIdLoading && deviceId) {
         // セッションがない場合、自動的にゲストログイン
         await signInAsGuest()
       }
@@ -56,12 +51,12 @@ function App() {
     initializeAuth()
 
     // 認証状態の変更を監視
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      // 認証状態が変更されたら何もしない（IdeaListで管理）
     })
 
     return () => subscription.unsubscribe()
-  }, [deviceId, deviceIdLoading])
+  }, [deviceId, deviceIdLoading, signInAsGuest])
 
   if (loading) {
     return (
