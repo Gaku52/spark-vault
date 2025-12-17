@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { Database } from '../../lib/database.types'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
@@ -8,14 +9,13 @@ interface GridViewProps {
   onDelete: (id: string) => void
 }
 
-export function GridView({ ideas, onEdit, onDelete }: GridViewProps) {
+export const GridView = memo(function GridView({ ideas, onEdit, onDelete }: GridViewProps) {
   return (
     <div className="grid gap-4 sm:gap-5 lg:grid-cols-2">
-      {ideas.map((idea, index) => (
+      {ideas.map((idea) => (
         <div
           key={idea.id}
-          className="bg-card/80 backdrop-blur-sm p-5 sm:p-6 rounded-2xl shadow-md border border-border/50 space-y-4 card-hover animate-fadeIn"
-          style={{ animationDelay: `${index * 50}ms` }}
+          className="bg-card/80 backdrop-blur-sm p-5 sm:p-6 rounded-2xl shadow-md border border-border/50 space-y-4 card-hover"
         >
           <div className="space-y-3">
             <div className="flex justify-between items-start gap-4">
@@ -80,4 +80,4 @@ export function GridView({ ideas, onEdit, onDelete }: GridViewProps) {
       ))}
     </div>
   )
-}
+})

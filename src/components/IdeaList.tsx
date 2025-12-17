@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 import type { ViewMode, SortField, SortOrder } from '../types/idea'
@@ -14,6 +14,7 @@ import { ListView } from './views/ListView'
 import { CompactView } from './views/CompactView'
 import { TableView } from './views/TableView'
 import { useIdeas } from '../hooks/useIdeas'
+import { useScrollDirection } from '../hooks/useScrollDirection'
 
 type Idea = Database['public']['Tables']['ideas']['Row']
 
@@ -45,6 +46,7 @@ export function IdeaList() {
   })
 
   const { ideas, loading, refresh, deleteIdea } = useIdeas({ searchQuery, sortField, sortOrder })
+  const scrollDirection = useScrollDirection()
 
   // セッション取得
   useEffect(() => {
@@ -101,7 +103,7 @@ export function IdeaList() {
     setIsFormCollapsed(prev => !prev)
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!confirm('このアイデアを削除しますか？')) return
 
     try {
@@ -109,25 +111,28 @@ export function IdeaList() {
     } catch (error) {
       console.error('Error deleting idea:', error)
     }
-  }
+  }, [deleteIdea])
 
   const isGuest = session?.user?.is_anonymous || session?.user?.user_metadata?.is_guest
 
-  const handleSortChange = (field: SortField, order: SortOrder) => {
+  const handleSortChange = useCallback((field: SortField, order: SortOrder) => {
     setSortField(field)
     setSortOrder(order)
-  }
+  }, [])
+
+  const handleEdit = useCallback((idea: Idea) => setEditingIdea(idea), [])
+  const handleIdeaClick = useCallback((idea: Idea) => setSelectedIdea(idea), [])
 
   const renderIdeasView = () => {
     switch (viewMode) {
       case 'grid':
-        return <GridView ideas={ideas} onEdit={setEditingIdea} onDelete={handleDelete} />
+        return <GridView ideas={ideas} onEdit={handleEdit} onDelete={handleDelete} />
       case 'list':
-        return <ListView ideas={ideas} onIdeaClick={setSelectedIdea} />
+        return <ListView ideas={ideas} onIdeaClick={handleIdeaClick} />
       case 'compact':
-        return <CompactView ideas={ideas} onIdeaClick={setSelectedIdea} />
+        return <CompactView ideas={ideas} onIdeaClick={handleIdeaClick} />
       case 'table':
-        return <TableView ideas={ideas} onIdeaClick={setSelectedIdea} onEdit={setEditingIdea} onDelete={handleDelete} />
+        return <TableView ideas={ideas} onIdeaClick={handleIdeaClick} onEdit={handleEdit} onDelete={handleDelete} />
     }
   }
 
@@ -135,7 +140,9 @@ export function IdeaList() {
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background ios-safe-area-top ios-safe-area-bottom">
       <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-br from-background via-muted/20 to-background pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fadeIn">
+        <div className={`sticky top-0 z-10 bg-gradient-to-br from-background via-muted/20 to-background pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-transform duration-300 ${
+          scrollDirection === 'down' && window.scrollY > 100 ? '-translate-y-full' : 'translate-y-0'
+        }`}>
           <div className="space-y-1">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Spark Vault
@@ -302,7 +309,7 @@ export function IdeaList() {
       <IdeaDetailModal
         idea={selectedIdea}
         onClose={() => setSelectedIdea(null)}
-        onEdit={setEditingIdea}
+        onEdit={handleEdit}
         onDelete={handleDelete}
       />
 
