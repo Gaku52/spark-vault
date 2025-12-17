@@ -167,7 +167,7 @@ export function Auth({ initialMode = 'signin', onSuccess }: AuthProps = {}) {
   }, [keyboardHeight])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4 ios-safe-area-top ios-safe-area-bottom">
       <div
         className="w-full max-w-md space-y-8 animate-fadeIn transition-all duration-300 ease-out"
         style={{ transform: formTransform, willChange: 'transform' }}

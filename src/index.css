@@ -31,8 +31,41 @@
   * {
     @apply border-border;
   }
+
+  html,
   body {
     @apply bg-background text-foreground;
+    /* iOSキーボード対応: 固定高さを避ける */
+    min-height: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* iOSのバウンススクロールを無効化（オプション） */
+  body {
+    overscroll-behavior-y: none;
+    position: relative;
+  }
+
+  /* iOS Safariのビューポート高さ問題に対応 */
+  #root {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* iOSのセーフエリア対応（ステータスバーとの重なりを防止） */
+  .ios-safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .ios-safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .ios-safe-area {
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
   }
 }
 

@@ -70,7 +70,7 @@ export function ResetPassword() {
   const passwordValidation = validatePassword(newPassword)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4 ios-safe-area-top ios-safe-area-bottom">
       <div className="w-full max-w-md space-y-8 animate-fadeIn">
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-lg shadow-primary/30 mb-4 animate-scaleIn">
