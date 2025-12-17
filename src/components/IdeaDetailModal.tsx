@@ -33,7 +33,7 @@ export function IdeaDetailModal({ idea, onClose, onEdit, onDelete }: IdeaDetailM
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn ios-safe-area-top ios-safe-area-bottom"
       onClick={onClose}
     >
       <div
