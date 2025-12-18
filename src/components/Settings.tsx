@@ -34,7 +34,7 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
     try {
       // ユーザーのすべてのメモを削除
       const { error: notesError } = await supabase
-        .from('notes')
+        .from('ideas')
         .delete()
         .eq('user_id', session.user.id)
 
