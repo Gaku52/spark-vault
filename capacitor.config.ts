@@ -11,7 +11,7 @@ const config: CapacitorConfig = {
 
   ios: {
     contentInset: 'automatic',
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#FFFFFF',
     scheme: 'Spark Vault',
   },
 
@@ -29,7 +29,7 @@ const config: CapacitorConfig = {
     },
     SplashScreen: {
       launchShowDuration: 2000,
-      backgroundColor: '#8b5cf6',
+      backgroundColor: '#FFFFFF',
       showSpinner: false,
       iosSpinnerStyle: 'large',
       androidSpinnerStyle: 'large',
@@ -38,7 +38,7 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       style: 'dark',
-      backgroundColor: '#8b5cf6',
+      backgroundColor: '#FFFFFF',
     },
     Keyboard: {
       resize: 'native',
