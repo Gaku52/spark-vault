@@ -132,7 +132,7 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-gray-700">アプリ情報</h3>
             <div className="text-xs text-gray-600">
-              <p>バージョン: 1.3.0</p>
+              <p>バージョン: 1.4.0</p>
             </div>
           </div>
         </div>
