@@ -10,6 +10,8 @@ interface SettingsProps {
 export function Settings({ onShowAuth, onClose }: SettingsProps) {
   const [session, setSession] = useState<Session | null>(null)
   const [showAccountSection, setShowAccountSection] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -22,6 +24,39 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     window.location.reload() // ゲストモードで再起動
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!session?.user?.id) return
+
+    setIsDeleting(true)
+
+    try {
+      // 1. ユーザーのすべてのメモを削除
+      const { error: notesError } = await supabase
+        .from('notes')
+        .delete()
+        .eq('user_id', session.user.id)
+
+      if (notesError) {
+        console.error('メモの削除エラー:', notesError)
+      }
+
+      // 2. ログアウト
+      await supabase.auth.signOut()
+
+      // 3. 成功メッセージを表示
+      alert('アカウントとすべてのデータが削除されました。')
+
+      // 4. ページをリロード
+      window.location.reload()
+    } catch (error) {
+      console.error('アカウント削除エラー:', error)
+      alert('アカウントの削除中にエラーが発生しました。もう一度お試しください。')
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
+    }
   }
 
   return (
@@ -78,6 +113,14 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
                       >
                         ログアウト
                       </button>
+
+                      {/* アカウント削除ボタン */}
+                      <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="mt-2 w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                      >
+                        アカウントを削除
+                      </button>
                     </>
                   )}
                 </div>
@@ -89,11 +132,41 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-gray-700">アプリ情報</h3>
             <div className="text-xs text-gray-600">
-              <p>バージョン: 1.1.0</p>
+              <p>バージョン: 1.3.0</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* アカウント削除確認ダイアログ */}
+      {showDeleteConfirm && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              アカウントを削除しますか？
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              この操作は取り消せません。すべてのデータが完全に削除されます。
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? '削除中...' : '削除する'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

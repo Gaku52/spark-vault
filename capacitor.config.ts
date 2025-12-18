@@ -29,9 +29,10 @@ const config: CapacitorConfig = {
       backgroundColor: '#8b5cf6',
     },
     Keyboard: {
-      resize: 'body',
+      resize: 'native',
       style: 'dark',
       resizeOnFullScreen: true,
+      scrollAssist: true,
     },
     Haptics: {
       enabled: true,

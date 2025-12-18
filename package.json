@@ -1,6 +1,6 @@
 {
   "name": "spark-vault",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "description": "✨ Spark Vault - アイデアを即座に記録し、自己成長を多角的に管理するWebアプリケーション",
   "type": "module",
   "scripts": {
