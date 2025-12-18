@@ -12,9 +12,21 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'automatic',
     backgroundColor: '#8b5cf6',
+    scheme: 'Spark Vault',
+  },
+
+  server: {
+    hostname: 'spark.ogadix.com',
+    androidScheme: 'https',
+    iosScheme: 'https',
   },
 
   plugins: {
+    App: {
+      appUrlOpen: {
+        universalLinks: ['spark.ogadix.com'],
+      },
+    },
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: '#8b5cf6',

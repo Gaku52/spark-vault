@@ -33,6 +33,29 @@ function App() {
     CapacitorApp.addListener('appStateChange', ({ isActive }) => {
       console.log('App state changed. Is active:', isActive)
     })
+
+    // Universal Links / Deep Links のリスナー
+    CapacitorApp.addListener('appUrlOpen', (data) => {
+      console.log('App opened with URL:', data.url)
+
+      // URLからハッシュ部分を取得（Supabaseの認証トークンなど）
+      const url = new URL(data.url)
+
+      // URLにハッシュがある場合（例: #access_token=...）
+      if (url.hash) {
+        // ハッシュをブラウザのURLに設定してSupabaseが処理できるようにする
+        window.location.hash = url.hash
+      }
+
+      // パス部分がある場合はルーティング
+      if (url.pathname) {
+        window.location.pathname = url.pathname
+      }
+    })
+
+    return () => {
+      CapacitorApp.removeAllListeners()
+    }
   }, [])
 
   // 認証状態の初期化と監視
