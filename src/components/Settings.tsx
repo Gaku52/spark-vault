@@ -32,17 +32,20 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
     setIsDeleting(true)
 
     try {
-      // Supabaseのデータベース関数を呼び出してアカウントとデータを削除
-      const { error } = await supabase.rpc('delete_user')
+      // ユーザーのすべてのメモを削除
+      const { error: notesError } = await supabase
+        .from('notes')
+        .delete()
+        .eq('user_id', session.user.id)
 
-      if (error) {
-        console.error('アカウント削除エラー:', error)
-        alert('アカウントの削除中にエラーが発生しました。もう一度お試しください。')
+      if (notesError) {
+        console.error('メモの削除エラー:', notesError)
+        alert('データの削除中にエラーが発生しました。もう一度お試しください。')
         return
       }
 
       // 成功メッセージを表示
-      alert('アカウントとすべてのデータが削除されました。')
+      alert('すべてのデータが削除されました。アカウントからログアウトします。')
 
       // ログアウト（セッションをクリア）
       await supabase.auth.signOut()
@@ -113,12 +116,12 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
                         ログアウト
                       </button>
 
-                      {/* アカウント削除ボタン */}
+                      {/* データ削除ボタン */}
                       <button
                         onClick={() => setShowDeleteConfirm(true)}
                         className="mt-2 w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                       >
-                        アカウントを削除
+                        データを削除
                       </button>
                     </>
                   )}
@@ -137,15 +140,15 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
         </div>
       </div>
 
-      {/* アカウント削除確認ダイアログ */}
+      {/* データ削除確認ダイアログ */}
       {showDeleteConfirm && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4">
-              アカウントを削除しますか？
+              すべてのデータを削除しますか？
             </h3>
             <p className="text-sm text-gray-600 mb-6">
-              この操作は取り消せません。すべてのデータが完全に削除されます。
+              この操作は取り消せません。すべてのメモとデータが完全に削除され、ログアウトされます。
             </p>
             <div className="flex gap-3">
               <button
