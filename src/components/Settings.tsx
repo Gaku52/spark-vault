@@ -32,23 +32,22 @@ export function Settings({ onShowAuth, onClose }: SettingsProps) {
     setIsDeleting(true)
 
     try {
-      // 1. ユーザーのすべてのメモを削除
-      const { error: notesError } = await supabase
-        .from('notes')
-        .delete()
-        .eq('user_id', session.user.id)
+      // Supabaseのデータベース関数を呼び出してアカウントとデータを削除
+      const { error } = await supabase.rpc('delete_user')
 
-      if (notesError) {
-        console.error('メモの削除エラー:', notesError)
+      if (error) {
+        console.error('アカウント削除エラー:', error)
+        alert('アカウントの削除中にエラーが発生しました。もう一度お試しください。')
+        return
       }
 
-      // 2. ログアウト
-      await supabase.auth.signOut()
-
-      // 3. 成功メッセージを表示
+      // 成功メッセージを表示
       alert('アカウントとすべてのデータが削除されました。')
 
-      // 4. ページをリロード
+      // ログアウト（セッションをクリア）
+      await supabase.auth.signOut()
+
+      // ページをリロード
       window.location.reload()
     } catch (error) {
       console.error('アカウント削除エラー:', error)
