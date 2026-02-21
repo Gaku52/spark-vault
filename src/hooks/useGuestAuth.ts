@@ -35,7 +35,6 @@ export function useGuestAuth() {
 
       if (signInError) throw signInError
 
-      console.log('Guest sign in successful:', data)
       return { success: true, user: data.user }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'ゲストログインに失敗しました'

@@ -5,8 +5,13 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://cnldsirgrtbouoegkscz.supabase.co'
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '***REMOVED***'
+const supabaseUrl = process.env.VITE_SUPABASE_URL
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('環境変数 VITE_SUPABASE_URL と VITE_SUPABASE_ANON_KEY を設定してください')
+  process.exit(1)
+}
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 

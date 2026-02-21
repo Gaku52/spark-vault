@@ -252,7 +252,7 @@ export function Auth({ initialMode = 'signin', onSuccess }: AuthProps = {}) {
                   className="w-full px-4 py-3 border border-border rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all-smooth placeholder:text-muted-foreground/50"
                   required
                   disabled={loading}
-                  minLength={6}
+                  minLength={8}
                 />
               </div>
             )}

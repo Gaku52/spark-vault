@@ -8,8 +8,8 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- 現在のユーザーのメモを削除
-  DELETE FROM notes WHERE user_id = auth.uid();
+  -- 現在のユーザーのアイデアを削除
+  DELETE FROM ideas WHERE user_id = auth.uid();
 
   -- 現在のユーザーを削除
   DELETE FROM auth.users WHERE id = auth.uid();

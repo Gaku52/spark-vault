@@ -23,20 +23,17 @@ function App() {
         await StatusBar.setBackgroundColor({ color: '#8b5cf6' })
         await SplashScreen.hide()
         Keyboard.setAccessoryBarVisible({ isVisible: true })
-      } catch (error) {
-        console.log('Capacitor plugins not available (running on web)', error)
+      } catch {
+        // Capacitor plugins not available (running on web)
       }
     }
 
     initializeCapacitor()
 
-    CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-      console.log('App state changed. Is active:', isActive)
-    })
+    CapacitorApp.addListener('appStateChange', () => {})
 
     // Universal Links / Deep Links のリスナー
     CapacitorApp.addListener('appUrlOpen', (data) => {
-      console.log('App opened with URL:', data.url)
 
       // URLからハッシュ部分を取得（Supabaseの認証トークンなど）
       const url = new URL(data.url)
