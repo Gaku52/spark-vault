@@ -5,7 +5,8 @@
       {
         "appID": "29JYUH7RZC.com.ogadix.sparkvault",
         "paths": [
-          "*"
+          "/",
+          "/reset-password"
         ]
       }
     ]
